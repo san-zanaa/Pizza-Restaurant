@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import type { LucideIcon } from "lucide-react"
 import {
   Award,
@@ -12,6 +12,7 @@ import {
   Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useInView } from "@/hooks/use-in-view"
 
 type Metric = {
   value: number
@@ -125,38 +126,6 @@ function supportsHover() {
   )
 }
 
-function useInView<T extends HTMLElement>(threshold = 0.18) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return
-
-    if (typeof IntersectionObserver === "undefined") {
-      const id = setTimeout(() => setInView(true), 0)
-      return () => clearTimeout(id)
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setInView(true)
-            observer.disconnect()
-          }
-        }
-      },
-      { threshold, rootMargin: "0px 0px -8% 0px" }
-    )
-
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
-}
-
 function useCountUp(target: number, active: boolean, duration = 1300) {
   const [value, setValue] = useState(0)
 
@@ -242,7 +211,7 @@ function FeatureCard({
         style={{
           background:
             "radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,0.16), transparent 62%)",
-        }} />
+        }}/>
 
       <span
         aria-hidden="true"
@@ -250,8 +219,7 @@ function FeatureCard({
           "pointer-events-none absolute -top-16 -right-14 size-44 rounded-full opacity-0 blur-3xl transition-all duration-700",
           "group-hover:-translate-y-1 group-hover:opacity-100",
           accent.glow
-        )}
-      />
+        )}/>
 
       <span
         aria-hidden="true"
@@ -259,8 +227,7 @@ function FeatureCard({
           "pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r to-transparent opacity-0 transition-opacity duration-500",
           "group-hover:opacity-100",
           accent.hairline
-        )}
-      />
+        )}/>
 
       <div className="relative flex items-start justify-between gap-4">
         <span
@@ -319,13 +286,16 @@ export function StandardSection() {
       className="relative isolate overflow-hidden border-t border-border/60 bg-[#fffaf5] py-16 sm:py-20 lg:py-24 dark:bg-[#0b0a09]">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 left-1/2 -z-10 size-[34rem] -translate-x-1/2 rounded-full bg-[#f4574a]/12 blur-3xl"/>
+        className="pointer-events-none absolute -top-24 left-1/2 -z-10 size-[34rem] -translate-x-1/2 rounded-full bg-[#f4574a]/12 blur-3xl"
+      />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 -left-24 -z-10 size-96 rounded-full bg-[#ff9740]/12 blur-3xl dark:bg-[#ff9740]/10"/>
+        className="pointer-events-none absolute -bottom-32 -left-24 -z-10 size-96 rounded-full bg-[#ff9740]/12 blur-3xl dark:bg-[#ff9740]/10"
+      />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/3 -right-20 -z-10 size-80 rounded-full bg-[#14b8a6]/10 blur-3xl"/>
+        className="pointer-events-none absolute top-1/3 -right-20 -z-10 size-80 rounded-full bg-[#14b8a6]/10 blur-3xl"
+      />
 
       <div
         aria-hidden="true"
@@ -334,7 +304,8 @@ export function StandardSection() {
           backgroundImage:
             "linear-gradient(to right, rgba(28,25,23,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(28,25,23,0.06) 1px, transparent 1px)",
           backgroundSize: "56px 56px",
-        }}/>
+        }}
+      />
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div ref={headerRef} className="mx-auto max-w-4xl text-center">
@@ -345,11 +316,13 @@ export function StandardSection() {
             )}>
             <span
               aria-hidden="true"
-              className="h-px w-8 bg-gradient-to-r from-transparent to-[#f4574a]/70"/>
+              className="h-px w-8 bg-gradient-to-r from-transparent to-[#f4574a]/70"
+            />
             The PizzaHub Standard
             <span
               aria-hidden="true"
-              className="h-px w-8 bg-gradient-to-l from-transparent to-[#f4574a]/70"/>
+              className="h-px w-8 bg-gradient-to-l from-transparent to-[#f4574a]/70"
+            />
           </span>
 
           <h2
@@ -384,7 +357,8 @@ export function StandardSection() {
               key={feature.id}
               feature={feature}
               index={index}
-              visible={gridVisible}/>
+              visible={gridVisible}
+            />
           ))}
         </div>
 
