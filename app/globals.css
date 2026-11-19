@@ -292,6 +292,26 @@
   }
 }
 
+@keyframes footer-heart {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.22);
+  }
+}
+
+.footer-heart {
+  animation: footer-heart 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-heart {
+    animation: none;
+  }
+}
+
 @keyframes banner-dot {
   0% {
     box-shadow: 0 0 0 0 rgba(244, 87, 74, 0.55);
