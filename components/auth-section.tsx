@@ -553,7 +553,23 @@ export function AuthSection() {
             )
           )
         }
-        setMessage("Account created — your table is ready.")
+        // Auto-login the user after account creation
+        try {
+          const signInRes = await authClient.signIn.email({
+            email: email.trim(),
+            password,
+            rememberMe: false,
+          })
+          if (signInRes?.error) {
+            // Non-fatal: account created but sign-in failed;
+            // redirect anyway so the user can re-enter credentials
+            setMessage("Account created — please sign in to continue.")
+          } else {
+            setMessage("Account created — welcome aboard!")
+          }
+        } catch {
+          setMessage("Account created — please sign in to continue.")
+        }
         setStatus("success")
         redirectTimer.current = window.setTimeout(() => router.push("/"), 1000)
       } else {

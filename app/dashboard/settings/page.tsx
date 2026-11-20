@@ -63,6 +63,22 @@ export default async function SettingsPage() {
           sign-in page — account credentials are managed through PizzaHub&apos;s
           secure auth flow.
         </p>
+
+        <form
+          action={async () => {
+            await fetch("/api/auth/signout", { method: "POST" })
+            redirect("/sign-in")
+          }}
+          method="post"
+          className="mt-3"
+        >
+          <button
+            type="submit"
+            className="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+          >
+            Sign out
+          </button>
+        </form>
       </div>
     </>
   )
