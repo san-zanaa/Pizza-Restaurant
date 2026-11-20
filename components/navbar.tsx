@@ -15,7 +15,7 @@ import {
   UserRound,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Btn } from "@/components/dashboard/ui"
+import { authClient } from "@/lib/auth-client"
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -29,7 +29,7 @@ const DASHBOARD_LINKS = [
 ] as const
 
 const ACTIVE_PILL =
-  "bg-gradient-to-r from-[#f4574a] to-[#ff7d68] text-white shadow-[0_4px_14px_rgba(244,87,74,0.35)]"
+  "bg-gradient-to-r from-[#f4574a] to-[#ff7d68] text-white shadow-[0_4px_14_rgba(244,87,74,0.35)]"
 
 const IDLE_LINK = "text-muted-foreground hover:text-foreground"
 
@@ -126,72 +126,10 @@ function MobileMenu() {
   )
 }
 
-export function Navbar({ user }: { user?: { name: string; email: string; role: string } }) {
+export function Navbar() {
   const pathname = usePathname()
-  const router = useRouter()
-
-  const signoutAndRedirect = async () => {
-    try {
-      await fetch("/api/auth/signout", { method: "POST" })
-    } catch {
-      // ignore errors
-    }
-    router.push("/sign-in")
-  }
-
-  const signInLink = (
-    <Link
-      href="/sign-in"
-      className="inline-flex h-9 items-center justify-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold whitespace-nowrap text-white shadow-[0_4px_14px_rgba(244,87,74,0.35)] transition hover:brightness-110 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-    >
-      Sign In
-    </Link>
-  )
-
-  const userMenu = (
-    <div className="relative">
-      <Btn
-        variant="ghost"
-        size="sm"
-        aria-label="User menu"
-        className="rounded-full p-1"
-      >
-        <UserRound className="size-4" />
-      </Btn>
-      <Menu.Root>
-        <Menu.Trigger className="flex items-center gap-2">
-          <span className="font-medium text-foreground">
-            {user?.name || "User"}
-          </span>
-          <Bell className="size-3 text-primary" />
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner sideOffset={8} className="z-50">
-            <Menu.Popup className="min-w-48 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
-              <Menu.Item onClick={() => router.push("/dashboard/settings")}>
-                <UserRound className="size-3.5 mr-2" />
-                Settings
-              </Menu.Item>
-              <Menu.Item onClick={() => router.push("/dashboard/orders")}>
-                <ClipboardList className="size-3.5 mr-2" />
-                Orders
-              </Menu.Item>
-              <Menu.Item onClick={() => signoutAndRedirect()}>
-                <Image
-                  src="/assets/logo.png"
-                  alt="PizzaHub"
-                  width={1536}
-                  height={1024}
-                  className="h-5 w-auto mr-2"
-                />
-                Logout
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-    </div>
-  )
+  const { data: session } = authClient.useSession()
+  const user = session?.user ?? null
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -236,11 +174,24 @@ export function Navbar({ user }: { user?: { name: string; email: string; role: s
             )}
           </Link>
 
+          {/* User info: shows user name + bell icon when logged in, Sign In when not */}
           {user ? (
-            userMenu
+            <div className="flex items-center gap-2">
+              <UserRound className="size-4 text-foreground" />
+              <span className="text-sm font-medium text-foreground">
+                {user.name || "User"}
+              </span>
+              <Bell className="size-3 text-primary" />
+            </div>
           ) : (
-            signInLink
+            <Link
+              href="/sign-in"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold whitespace-nowrap text-white shadow-[0_4px_14_rgba(244,87,74,0.35)] transition hover:brightness-110 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+            >
+              Sign In
+            </Link>
           )}
+
           <div className="md:hidden">
             <MobileMenu />
           </div>

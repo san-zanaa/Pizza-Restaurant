@@ -4,7 +4,6 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { getSessionUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -14,13 +13,11 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = await getSessionUser()
-
   return (
     <html
       lang="en"
@@ -34,7 +31,7 @@ export default async function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <Navbar user={user as any} />
+          <Navbar />
           {children}
           <Footer />
         </ThemeProvider>
