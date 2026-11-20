@@ -1,3 +1,4 @@
+import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import type { AppUser, Plan, Role } from "@/lib/types"
 
@@ -21,28 +22,22 @@ function normalize(raw: unknown): AppUser | null {
   }
 }
 
-// Server-only: get session user (called from Server Components and API routes)
+export async function userFromHeaders(
+  requestHeaders: Headers
+): Promise<AppUser | null> {
+  const session = await auth.api.getSession({ headers: requestHeaders })
+  return normalize(session?.user)
+}
+
 export async function getSessionUser(): Promise<AppUser | null> {
   "use server"
-  // Use empty headers object - better-auth will use the request context
-  // When called from API routes, the request headers are available automatically
-  // When called from Server Components, we pass minimal headers
   try {
-    const session = await auth.api.getSession({ headers: {} })
+    const requestHeaders = await headers()
+    const session = await auth.api.getSession({ headers: requestHeaders })
     return normalize(session?.user)
   } catch {
     return null
   }
-}
-
-// Client-friendly: get session user without next/headers dependency
-// Returns null on the client; use in Server Components or API routes instead.
-export async function getSessionUserClient(): Promise<AppUser | null> {
-  "use client"
-  // Client-side session check - in a real app, this would use
-  // better-auth's client SDK or a session cookie/token check.
-  // For now, return null to avoid next/headers dependency in client components.
-  return null
 }
 
 export function isBlocked(user: AppUser): boolean {

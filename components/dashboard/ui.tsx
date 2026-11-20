@@ -55,6 +55,8 @@ export function Btn({
   size = "md",
   className,
   type = "button",
+  render,
+  nativeButton,
   ...props
 }: BtnProps) {
   return (
@@ -63,6 +65,8 @@ export function Btn({
       variant={BTN_VARIANT[variant]}
       size={BTN_SIZE[size]}
       className={cn("cursor-pointer", className)}
+      nativeButton={render ? false : nativeButton}
+      {...(render ? { render } : {})}
       {...props}
     />
   )

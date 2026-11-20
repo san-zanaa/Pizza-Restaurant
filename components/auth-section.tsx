@@ -553,7 +553,6 @@ export function AuthSection() {
             )
           )
         }
-        // Auto-login the user after account creation
         try {
           const signInRes = await authClient.signIn.email({
             email: email.trim(),
@@ -561,8 +560,7 @@ export function AuthSection() {
             rememberMe: false,
           })
           if (signInRes?.error) {
-            // Non-fatal: account created but sign-in failed;
-            // redirect anyway so the user can re-enter credentials
+            
             setMessage("Account created — please sign in to continue.")
           } else {
             setMessage("Account created — welcome aboard!")
