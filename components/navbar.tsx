@@ -125,6 +125,7 @@ function MobileMenu() {
 
 export function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -161,7 +162,13 @@ export function Navbar() {
             className="inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
           >
             <ShoppingCart className="size-5" />
+            {true && (
+              <span className="absolute -top-0.5 -right-0.5 size-3.5 rounded-full bg-primary text-white text-[10px] font-bold">
+                3
+              </span>
+            )}
           </Link>
+
           <Link
             href="/sign-in"
             className="inline-flex h-9 items-center justify-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold whitespace-nowrap text-white shadow-[0_4px_14px_rgba(244,87,74,0.35)] transition hover:brightness-110 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"

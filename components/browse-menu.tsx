@@ -8,10 +8,6 @@ import { apiGet } from "@/lib/client-fetch"
 import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
 import { MENU_CATEGORIES, type MenuItem } from "@/lib/types"
 
-/**
- * Public Browse Menu — only Approved + Active items ever reach this page
- * (enforced by GET /api/menu).
- */
 export function BrowseMenu() {
   const [items, setItems] = useState<MenuItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -99,7 +95,6 @@ export function BrowseMenu() {
                 className="group overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-[#f4574a]/40 hover:shadow-[0_24px_50px_-30px_rgba(244,87,74,0.6)] focus-visible:ring-2 focus-visible:ring-[#f4574a]/50 focus-visible:outline-none"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={item.imageUrl}
                     alt={item.name}

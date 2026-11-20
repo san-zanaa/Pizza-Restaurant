@@ -20,9 +20,7 @@ function createAuth() {
     baseURL: process.env.BETTER_AUTH_URL?.trim() || undefined,
     emailAndPassword: {
       enabled: true,
-      // Enables POST /api/auth/request-password-reset (the "Forgot password?"
-      // flow). This project ships without an email provider, so the link is
-      // surfaced in the server logs instead of being emailed.
+      
       sendResetPassword: async ({ user, url }) => {
         console.info(`[PizzaHub] Password reset link for ${user.email}: ${url}`)
       },
@@ -37,9 +35,7 @@ function createAuth() {
           },
         }
       : {}),
-    // Role-based dashboards: the sign-up card's "Designate access role"
-    // selector submits `role`; `blocked` and `plan` are server-managed only
-    // (admin block/unblock, verified Stripe upgrades).
+  
     user: {
       additionalFields: {
         role: {

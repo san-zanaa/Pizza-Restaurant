@@ -24,13 +24,7 @@ import {
 } from "@/components/dashboard/ui-custom"
 import type { AppUser, MenuItem } from "@/lib/types"
 
-/**
- * Menu item details + the Order form.
- *
- * Customer, selected vendor and selected menu item are detected automatically
- * (server session + the fetched item) — the form only asks for delivery date,
- * address and a message. New orders save as Pending.
- */
+
 export function MenuItemDetail({
   id,
   user,
@@ -103,7 +97,6 @@ export function MenuItemDetail({
 
       <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
         <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={item.imageUrl}
             alt={item.name}
@@ -177,10 +170,6 @@ function EmptyIcon() {
     </span>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Order form                                                          */
-/* ------------------------------------------------------------------ */
 
 function OrderForm({
   user,

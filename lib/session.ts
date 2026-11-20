@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
 import type { AppUser, Plan, Role } from "@/lib/types"
 
 function normalize(raw: unknown): AppUser | null {
@@ -22,15 +21,10 @@ function normalize(raw: unknown): AppUser | null {
   }
 }
 
-export async function userFromHeaders(
-  requestHeaders: Headers
-): Promise<AppUser | null> {
-  const session = await auth.api.getSession({ headers: requestHeaders })
-  return normalize(session?.user)
-}
-
 export async function getSessionUser(): Promise<AppUser | null> {
-  const session = await auth.api.getSession({ headers: await headers() })
+  "use server"
+  const { headers } = await import("next/headers")
+  const session = await auth.api.getSession({ headers: headers() })
   return normalize(session?.user)
 }
 
