@@ -37,6 +37,28 @@ function createAuth() {
           },
         }
       : {}),
+    // Role-based dashboards: the sign-up card's "Designate access role"
+    // selector submits `role`; `blocked` and `plan` are server-managed only
+    // (admin block/unblock, verified Stripe upgrades).
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          defaultValue: "customer",
+          input: true,
+        },
+        blocked: {
+          type: "boolean",
+          defaultValue: false,
+          input: false,
+        },
+        plan: {
+          type: "string",
+          defaultValue: "free",
+          input: false,
+        },
+      },
+    },
     database: mongodbAdapter(db, {
       client,
     }),

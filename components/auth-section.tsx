@@ -542,6 +542,8 @@ export function AuthSection() {
           name: name.trim(),
           email: email.trim(),
           password,
+          // "Designate access role" — customer, vendor or admin.
+          role,
         })
         if (res?.error) {
           throw new Error(
