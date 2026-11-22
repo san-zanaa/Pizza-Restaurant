@@ -99,7 +99,7 @@ export function BrowseMenu() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                   <img
-                    src={item.imageUrl}
+                    src={item.image}
                     alt={item.name}
                     loading="lazy"
                     className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -114,7 +114,7 @@ export function BrowseMenu() {
                       {item.name}
                     </h2>
                     <span className="shrink-0 rounded-full bg-[#f4574a]/10 px-2.5 py-1 text-[13px] font-extrabold text-[#f4574a]">
-                      ${item.price.toFixed(2)}
+                      BDT {item.price}
                     </span>
                   </div>
                   <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
@@ -123,10 +123,7 @@ export function BrowseMenu() {
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <span className="flex min-w-0 items-center gap-1 text-[12px] font-semibold text-muted-foreground">
                       <MapPin className="size-3.5 shrink-0" />
-                      <span className="truncate">{item.location}</span>
-                    </span>
-                    <span className="truncate text-[12px] font-semibold text-[#f4574a]">
-                      {item.vendorName}
+                      <span className="truncate">{item.category}</span>
                     </span>
                   </div>
                 </div>

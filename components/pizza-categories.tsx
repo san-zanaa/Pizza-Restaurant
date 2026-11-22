@@ -1,7 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Beef, ChefHat, CupSoda, Leaf, Pizza, Sandwich } from "lucide-react"
+import {
+  ArrowRight,
+  Cake,
+  ChefHat,
+  CupSoda,
+  Pizza,
+  Sandwich,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
 import { useInView } from "@/hooks/use-in-view"
@@ -21,72 +28,12 @@ type CategoryTile = {
 }
 
 const CATEGORIES: CategoryTile[] = [
-  {
-    name: "Classic Pizzas",
-    icon: Pizza,
-    accent: {
-      tile: "bg-[#f4574a]/10 text-[#f4574a] ring-[#f4574a]/25",
-      count: "text-[#f4574a]",
-      explore: "text-[#f4574a]",
-      hover: "hover:border-[#f4574a]/45 hover:shadow-[0_18px_40px_-26px_rgba(244,87,74,0.75)]",
-      focus: "focus-visible:ring-[#f4574a]/50",
-    },
-  },
-  {
-    name: "Vegetarian Pizzas",
-    icon: Leaf,
-    accent: {
-      tile: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/25 dark:text-emerald-400",
-      count: "text-emerald-600 dark:text-emerald-400",
-      explore: "text-emerald-600 dark:text-emerald-400",
-      hover: "hover:border-emerald-500/45 hover:shadow-[0_18px_40px_-26px_rgba(16,185,129,0.75)]",
-      focus: "focus-visible:ring-emerald-500/50",
-    },
-  },
-  {
-    name: "Meat Lovers",
-    icon: Beef,
-    accent: {
-      tile: "bg-orange-500/10 text-orange-600 ring-orange-500/25 dark:text-orange-400",
-      count: "text-orange-600 dark:text-orange-400",
-      explore: "text-orange-600 dark:text-orange-400",
-      hover: "hover:border-orange-500/45 hover:shadow-[0_18px_40px_-26px_rgba(249,115,22,0.75)]",
-      focus: "focus-visible:ring-orange-500/50",
-    },
-  },
-  {
-    name: "Specialty / Gourmet Pizzas",
-    icon: ChefHat,
-    accent: {
-      tile: "bg-violet-500/10 text-violet-600 ring-violet-500/25 dark:text-violet-400",
-      count: "text-violet-600 dark:text-violet-400",
-      explore: "text-violet-600 dark:text-violet-400",
-      hover: "hover:border-violet-500/45 hover:shadow-[0_18px_40px_-26px_rgba(139,92,246,0.75)]",
-      focus: "focus-visible:ring-violet-500/50",
-    },
-  },
-  {
-    name: "Sides & Appetizers",
-    icon: Sandwich,
-    accent: {
-      tile: "bg-sky-500/10 text-sky-600 ring-sky-500/25 dark:text-sky-400",
-      count: "text-sky-600 dark:text-sky-400",
-      explore: "text-sky-600 dark:text-sky-400",
-      hover: "hover:border-sky-500/45 hover:shadow-[0_18px_40px_-26px_rgba(14,165,233,0.75)]",
-      focus: "focus-visible:ring-sky-500/50",
-    },
-  },
-  {
-    name: "Beverages & Desserts",
-    icon: CupSoda,
-    accent: {
-      tile: "bg-amber-500/10 text-amber-600 ring-amber-500/25 dark:text-amber-400",
-      count: "text-amber-600 dark:text-amber-400",
-      explore: "text-amber-600 dark:text-amber-400",
-      hover: "hover:border-amber-500/45 hover:shadow-[0_18px_40px_-26px_rgba(245,158,11,0.75)]",
-      focus: "focus-visible:ring-amber-500/50",
-    },
-  },
+  { name: "Pizzas", icon: Pizza, accent: { tile: "bg-[#f4574a]/10 text-[#f4574a] ring-[#f4574a]/25", count: "text-[#f4574a]", explore: "text-[#f4574a]", hover: "hover:border-[#f4574a]/45 hover:shadow-[0_18px_40px_-26px_rgba(244,87,74,0.75)]", focus: "focus-visible:ring-[#f4574a]/50" } },
+  { name: "Pasta", icon: ChefHat, accent: { tile: "bg-violet-500/10 text-violet-600 ring-violet-500/25 dark:text-violet-400", count: "text-violet-600 dark:text-violet-400", explore: "text-violet-600 dark:text-violet-400", hover: "hover:border-violet-500/45 hover:shadow-[0_18px_40px_-26px_rgba(139,92,246,0.75)]", focus: "focus-visible:ring-violet-500/50" } },
+  { name: "Sides", icon: Sandwich, accent: { tile: "bg-indigo-500/10 text-indigo-600 ring-indigo-500/25 dark:text-indigo-400", count: "text-indigo-600 dark:text-indigo-400", explore: "text-indigo-600 dark:text-indigo-400", hover: "hover:border-indigo-500/45 hover:shadow-[0_18px_40px_-26px_rgba(99,102,241,0.75)]", focus: "focus-visible:ring-indigo-500/50" } },
+  { name: "Appetizers", icon: Sandwich, accent: { tile: "bg-sky-500/10 text-sky-600 ring-sky-500/25 dark:text-sky-400", count: "text-sky-600 dark:text-sky-400", explore: "text-sky-600 dark:text-sky-400", hover: "hover:border-sky-500/45 hover:shadow-[0_18px_40px_-26px_rgba(14,165,233,0.75)]", focus: "focus-visible:ring-sky-500/50" } },
+  { name: "Beverages", icon: CupSoda, accent: { tile: "bg-amber-500/10 text-amber-600 ring-amber-500/25 dark:text-amber-400", count: "text-amber-600 dark:text-amber-400", explore: "text-amber-600 dark:text-amber-400", hover: "hover:border-amber-500/45 hover:shadow-[0_18px_40px_-26px_rgba(245,158,11,0.75)]", focus: "focus-visible:ring-amber-500/50" } },
+  { name: "Desserts", icon: Cake, accent: { tile: "bg-pink-500/10 text-pink-600 ring-pink-500/25 dark:text-pink-400", count: "text-pink-600 dark:text-pink-400", explore: "text-pink-600 dark:text-pink-400", hover: "hover:border-pink-500/45 hover:shadow-[0_18px_40px_-26px_rgba(236,72,153,0.75)]", focus: "focus-visible:ring-pink-500/50" } },
 ]
 
 export function PizzaCategories() {
@@ -180,7 +127,7 @@ export function PizzaCategories() {
 
         <div
           ref={gridRef}
-          className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-6">
+          className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
           {CATEGORIES.map((tile, index) => {
             const { icon: Icon, name, accent } = tile
             return (

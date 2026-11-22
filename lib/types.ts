@@ -16,19 +16,12 @@ export interface AppUser {
 
 export interface MenuItem {
   _id: string
+  id: string
   name: string
   category: string
   description: string
   price: number
-  location: string
-  imageUrl: string
-  imageDeleteUrl?: string
-  vendorId: string
-  vendorName: string
-  status: MenuStatus
-  availability: boolean
-  createdAt: string
-  updatedAt: string
+  image: string
 }
 
 export interface Order {
@@ -64,12 +57,12 @@ export interface Transaction {
 }
 
 export const MENU_CATEGORIES = [
-  "Classic Pizzas",
-  "Vegetarian Pizzas",
-  "Meat Lovers",
-  "Specialty / Gourmet Pizzas",
-  "Sides & Appetizers",
-  "Beverages & Desserts",
+  "Pizzas",
+  "Pasta",
+  "Sides",
+  "Appetizers",
+  "Beverages",
+  "Desserts",
 ] as const
 
 export const MENU_STATUSES: MenuStatus[] = ["Pending", "Approved", "Rejected"]

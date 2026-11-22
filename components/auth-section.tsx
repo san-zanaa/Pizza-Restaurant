@@ -643,7 +643,7 @@ export function AuthSection() {
       type="button"
       onClick={() => setShowPassword((value) => !value)}
       aria-label={showPassword ? "Hide password" : "Show password"}
-      className="grid size-8 place-items-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none"
+      className="grid size-8 place-items-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none cursor-pointer"
     >
       {showPassword ? (
         <EyeOff className="size-4" />
@@ -658,7 +658,7 @@ export function AuthSection() {
       <button
         type="button"
         onClick={() => switchMode("forgot")}
-        className="text-[12.5px] font-bold text-[#ffb454] underline-offset-4 transition hover:text-[#ffd9a0] hover:underline focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none"
+        className="text-[12.5px] font-bold text-[#ffb454] underline-offset-4 transition hover:text-[#ffd9a0] hover:underline focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none cursor-pointer"
       >
         Forgot password?
       </button>
@@ -714,7 +714,7 @@ export function AuthSection() {
             aria-current={mode !== "signup"}
             onClick={() => switchMode("signin")}
             className={cn(
-              "relative z-10 rounded-full px-3 py-2 text-[13px] font-bold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none sm:px-4",
+              "relative z-10 rounded-full px-3 py-2 text-[13px] font-bold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none sm:px-4 cursor-pointer",
               mode !== "signup"
                 ? "text-white"
                 : "text-white/45 hover:text-white/75"
@@ -1022,7 +1022,7 @@ export function AuthSection() {
             <button
               type="submit"
               disabled={busy || succeeded}
-              className="offer-btn group/btn relative mt-5 h-12 w-full overflow-hidden rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff8a3d] text-sm font-bold text-white shadow-[0_18px_44px_-16px_rgba(244,87,74,0.95)] transition focus-visible:ring-2 focus-visible:ring-[#ffb454] focus-visible:ring-offset-2 focus-visible:ring-offset-[#141312] focus-visible:outline-none active:scale-[0.98] disabled:cursor-wait disabled:opacity-70">
+              className="offer-btn group/btn relative mt-5 h-12 w-full overflow-hidden rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff8a3d] text-sm font-bold text-white shadow-[0_18px_44px_-16px_rgba(244,87,74,0.95)] transition focus-visible:ring-2 focus-visible:ring-[#ffb454] focus-visible:ring-offset-2 focus-visible:ring-offset-[#141312] focus-visible:outline-none active:scale-[0.98] disabled:cursor-wait disabled:opacity-70 cursor-pointer">
               <span
                 aria-hidden="true"
                 className="offer-shine absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/45 to-transparent"

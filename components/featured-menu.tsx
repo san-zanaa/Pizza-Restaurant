@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, MapPin, Pizza, Store } from "lucide-react"
+import { ArrowRight, Pizza } from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
 import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
@@ -28,7 +28,7 @@ function FeaturedCard({
       )}>
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
-          src={item.imageUrl}
+          src={item.image}
           alt={item.name}
           loading="lazy"
           className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -44,32 +44,13 @@ function FeaturedCard({
             {item.name}
           </h3>
           <span className="shrink-0 rounded-full bg-[#f4574a]/10 px-2.5 py-1 text-[13px] font-extrabold text-[#f4574a]">
-            ${item.price.toFixed(2)}
+            BDT {item.price}
           </span>
         </div>
 
         <p className="mt-2 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
           {item.description}
         </p>
-
-        <div className="mt-3 flex flex-col gap-1.5 text-[12.5px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <MapPin
-              className="size-3.5 shrink-0 text-[#f4574a]"
-              aria-hidden="true"
-            />
-            <span className="truncate">{item.location}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Store
-              className="size-3.5 shrink-0 text-[#f4574a]"
-              aria-hidden="true"
-            />
-            <span className="truncate font-semibold text-foreground/80">
-              {item.vendorName}
-            </span>
-          </span>
-        </div>
 
         <Link
           href={`/menu/${item._id}`}
@@ -91,7 +72,7 @@ export function FeaturedMenu() {
 
   useEffect(() => {
     let alive = true
-    apiGet<{ items: MenuItem[] }>(`/api/menu`).then(
+    apiGet<{ items: MenuItem[] }>(`/api/menu?limit=8`).then(
       ({ data, error: err }) => {
         if (!alive) return
         setItems(data?.items ?? [])
@@ -176,7 +157,7 @@ export function FeaturedMenu() {
           <div
             ref={gridRef}
             className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.map((item, index) => (
+            {items.slice(0,8).map((item, index) => (
               <FeaturedCard
                 key={item._id}
                 item={item}

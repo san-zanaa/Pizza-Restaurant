@@ -186,7 +186,7 @@ export function AdminMenuItems() {
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.imageUrl}
+                      src={item.image}
                       alt={item.name}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
@@ -195,13 +195,13 @@ export function AdminMenuItems() {
                         {item.name}
                       </p>
                       <p className="max-w-[220px] truncate text-xs text-muted-foreground">
-                        {item.location}
+                        —
                       </p>
                     </div>
                   </div>
                 </Td>
                 <Td className="text-[13px] font-medium">
-                  {item.vendorName}
+                  {item.name}
                 </Td>
                 <Td>
                   <span className="text-[13px] text-muted-foreground">
@@ -291,7 +291,7 @@ export function AdminMenuItems() {
                           </AlertDialogTitle>
                           <AlertDialogDescription>
                             This permanently removes the item for{" "}
-                            {item.vendorName}. This can&apos;t be undone.
+                            {item.name}. This can&apos;t be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

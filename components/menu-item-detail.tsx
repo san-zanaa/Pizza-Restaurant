@@ -98,7 +98,7 @@ export function MenuItemDetail({
       <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
         <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
           <img
-            src={item.imageUrl}
+            src={item.image}
             alt={item.name}
             className="size-full object-cover"
           />
@@ -113,25 +113,128 @@ export function MenuItemDetail({
               {item.name}
             </h1>
             <span className="shrink-0 rounded-full bg-[#f4574a]/10 px-3.5 py-1.5 text-lg font-extrabold text-[#f4574a]">
-              ${item.price.toFixed(2)}
+              BDT {item.price}
             </span>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
-            <StatusBadge status={item.availability ? "Active" : "Inactive"} />
             <span className="inline-flex items-center gap-1.5">
-              <Store className="size-4" />
-              {item.vendorName}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="size-4" />
-              {item.location}
+              <span className="rounded-full bg-[#f4574a]/10 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#f4574a] uppercase">
+                {item.category}
+              </span>
             </span>
           </div>
 
           <p className="mt-5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-foreground/90">
             {item.description}
           </p>
+
+          {item.details ? (
+            <p className="mt-3 text-[13.5px] leading-relaxed text-muted-foreground">
+              {item.details}
+            </p>
+          ) : null}
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {item.rating ? (
+              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
+                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                  Rating
+                </p>
+                <p className="mt-0.5 text-[14px] font-bold text-foreground">
+                  ★ {item.rating}{" "}
+                  <span className="text-[12px] font-medium text-muted-foreground">
+                    ({item.reviewCount ?? 0} reviews)
+                  </span>
+                </p>
+              </div>
+            ) : null}
+            {item.preparationTime ? (
+              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
+                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                  Prep time
+                </p>
+                <p className="mt-0.5 text-[14px] font-bold text-foreground">
+                  {item.preparationTime}
+                </p>
+              </div>
+            ) : null}
+            {item.spiceLevel && item.spiceLevel !== "None" ? (
+              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
+                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                  Spice level
+                </p>
+                <p className="mt-0.5 text-[14px] font-bold text-foreground">
+                  {item.spiceLevel}
+                </p>
+              </div>
+            ) : null}
+            {item.dietary && item.dietary.length ? (
+              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
+                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                  Dietary
+                </p>
+                <p className="mt-0.5 text-[14px] font-bold text-foreground">
+                  {item.dietary.join(", ")}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          {item.sizes && item.sizes.length ? (
+            <div className="mt-5">
+              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                Sizes &amp; prices
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {item.sizes.map((size) => (
+                  <span
+                    key={size.name}
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-[12.5px] font-semibold text-foreground"
+                  >
+                    {size.name}
+                    {size.diameter ? (
+                      <span className="text-muted-foreground">
+                        ({size.diameter})
+                      </span>
+                    ) : null}
+                    <span className="font-extrabold text-[#f4574a]">
+                      {item.currency} {size.price}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {item.ingredients && item.ingredients.length ? (
+            <div className="mt-5">
+              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                Ingredients
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {item.ingredients.map((ing) => (
+                  <span
+                    key={ing}
+                    className="rounded-full bg-muted px-3 py-1 text-[12px] font-medium text-foreground"
+                  >
+                    {ing}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {item.allergens && item.allergens.length ? (
+            <div className="mt-4">
+              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+                Allergens
+              </p>
+              <p className="mt-1 text-[13px] text-rose-600 dark:text-rose-400">
+                {item.allergens.join(", ")}
+              </p>
+            </div>
+          ) : null}
 
           <div className="mt-7">
             {formOpen ? (
@@ -288,7 +391,7 @@ function OrderForm({
           label="Customer"
           value={user ? user.email : "Sign in required"}
         />
-        <DetectedChip icon={Store} label="Vendor" value={item.vendorName} />
+        
         <DetectedChip icon={Pizza} label="Item" value={item.name} />
         <DetectedChip
           icon={Calendar}

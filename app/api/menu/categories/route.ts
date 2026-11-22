@@ -2,15 +2,9 @@ import { jsonOk } from "@/lib/api"
 import { menuItemsCollection } from "@/lib/db"
 import { MENU_CATEGORIES } from "@/lib/types"
 
-/**
- * GET /api/menu/categories
- * Public: approved + available item counts per category, in canonical order.
- * Powers the homepage "Pizza Categories" section.
- */
 export async function GET() {
   const counts = await menuItemsCollection()
     .aggregate([
-      { $match: { status: "Approved", availability: true } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ])
     .toArray()

@@ -46,7 +46,7 @@ function toState(item: MenuItem): FormState {
     category: item.category,
     description: item.description,
     price: String(item.price),
-    location: item.location,
+    location: "",
   }
 }
 
@@ -194,7 +194,7 @@ function ImageUploader({
 export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
   const editing = Boolean(item)
   const [state, setState] = useState<FormState>(item ? toState(item) : EMPTY)
-  const [imageUrl, setImageUrl] = useState(item?.imageUrl ?? "")
+  const [imageUrl, setImageUrl] = useState(item?.image ?? "")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
@@ -252,15 +252,15 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
       {editing ? (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <StatusBadge status={item!.status} />
+            <StatusBadge status={item!.isAvailable ? "Active" : "Inactive"} />
             <span
               className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold tracking-wide uppercase ${
-                item!.availability
+                item!.isAvailable
                   ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300"
                   : "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300"
               }`}
             >
-              {item!.availability ? "Active" : "Inactive"}
+              {item!.isAvailable ? "Active" : "Inactive"}
             </span>
           </div>
           <div className="flex items-center gap-2">

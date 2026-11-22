@@ -70,7 +70,7 @@ export function VendorMenuList() {
     const { error: err } = await apiSend<{ item: MenuItem }>(
       `/api/menu/${item._id}`,
       "PATCH",
-      { availability: !item.availability }
+      { isAvailable: !item.isAvailable }
     )
     setBusyId(null)
     if (err) {
@@ -145,7 +145,7 @@ export function VendorMenuList() {
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.imageUrl}
+                      src={item.image}
                       alt={item.name}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
@@ -154,7 +154,7 @@ export function VendorMenuList() {
                         {item.name}
                       </p>
                       <p className="max-w-[220px] truncate text-xs text-muted-foreground">
-                        {item.location}
+                        —
                       </p>
                     </div>
                   </div>
@@ -166,18 +166,18 @@ export function VendorMenuList() {
                 </Td>
                 <Td className="font-semibold">{money(item.price)}</Td>
                 <Td>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.isAvailable ? "Active" : "Inactive"} />
                 </Td>
                 <Td>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={item.availability}
+                      checked={item.isAvailable}
                       onCheckedChange={() => toggleAvailability(item)}
                       disabled={busyId === item._id}
-                      aria-label={`${item.availability ? "Deactivate" : "Activate"} ${item.name}`}
+                      aria-label={`${item.isAvailable ? "Deactivate" : "Activate"} ${item.name}`}
                     />
                     <span className="text-xs text-muted-foreground">
-                      {item.availability ? "Active" : "Inactive"}
+                      {item.isAvailable ? "Active" : "Inactive"}
                     </span>
                   </div>
                 </Td>
