@@ -9,10 +9,11 @@ import { FREE_PLAN_ACTIVE_LIMIT } from "@/lib/types"
 
 /**
  * GET /api/menu
- * Query: scope ("admin" | "mine" | undefined), q, status, category
+ * Query: scope ("admin" | "mine" | undefined), q, status, category, limit
  * - Public (no scope): Approved + Active items only
  * - scope=mine: vendor's own items (vendor auth required)
  * - scope=admin: all items (admin auth required)
+ * - limit: max number of items to return (capped at 100)
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
   const q = searchParams.get("q")
   const status = searchParams.get("status")
   const category = searchParams.get("category")
+  const limit = Number(searchParams.get("limit"))
 
   const user = await getSessionUser()
 
@@ -53,10 +55,15 @@ export async function GET(request: Request) {
     ]
   }
 
-  const items = await menuItemsCollection()
+  let cursor = menuItemsCollection()
     .find(filter)
     .sort({ createdAt: -1 })
-    .toArray()
+
+  if (Number.isFinite(limit) && limit >= 1) {
+    cursor = cursor.limit(Math.min(Math.floor(limit), 100))
+  }
+
+  const items = await cursor.toArray()
 
   return jsonOk({ items: items as MenuItem[] })
 }

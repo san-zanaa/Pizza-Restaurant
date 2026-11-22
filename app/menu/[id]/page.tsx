@@ -5,7 +5,6 @@ type Params = { params: Promise<{ id: string }> }
 
 export const metadata = { title: "Dish · PizzaHub" }
 
-/** Menu item details + order form. */
 export default async function MenuItemPage({ params }: Params) {
   const { id } = await params
   const user = await getSessionUser()

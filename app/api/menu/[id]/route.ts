@@ -7,6 +7,30 @@ import { validateMenuItem } from "@/lib/validation"
 import type { MenuItem } from "@/lib/types"
 
 /**
+ * GET /api/menu/[id]
+ * - Public: approved + available items only
+ * - Vendor (own item) / admin: any item (e.g. preview before approval)
+ */
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const existing = await menuItemsCollection().findOne({ _id: id })
+  if (!existing) return jsonError("Menu item not found.", 404)
+
+  const isPublic =
+    existing.status === "Approved" && existing.availability === true
+  if (isPublic) return jsonOk({ item: existing as MenuItem })
+
+  const user = await getSessionUser()
+  if (user && (user.role === "admin" || user.id === existing.vendorId)) {
+    return jsonOk({ item: existing as MenuItem })
+  }
+  return jsonError("Menu item not found.", 404)
+}
+
+/**
  * PATCH /api/menu/[id]
  * - Vendor: update their own item's fields (name, category, description, price, location, imageUrl, availability)
  * - Admin: update any item's status only

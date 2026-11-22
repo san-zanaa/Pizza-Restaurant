@@ -64,11 +64,12 @@ export interface Transaction {
 }
 
 export const MENU_CATEGORIES = [
-  "Pizza",
-  "Pasta",
-  "Sides",
-  "Beverages",
-  "Desserts",
+  "Classic Pizzas",
+  "Vegetarian Pizzas",
+  "Meat Lovers",
+  "Specialty / Gourmet Pizzas",
+  "Sides & Appetizers",
+  "Beverages & Desserts",
 ] as const
 
 export const MENU_STATUSES: MenuStatus[] = ["Pending", "Approved", "Rejected"]
