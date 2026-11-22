@@ -1,7 +1,7 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { MapPin, Pizza, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
@@ -9,10 +9,13 @@ import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
 import { MENU_CATEGORIES, type MenuItem } from "@/lib/types"
 
 export function BrowseMenu() {
+  const searchParams = useSearchParams()
   const [items, setItems] = useState<MenuItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState("")
-  const [category, setCategory] = useState("")
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "")
+  const [category, setCategory] = useState(
+    () => searchParams.get("category") ?? ""
+  )
 
   useEffect(() => {
     const params = new URLSearchParams()

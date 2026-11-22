@@ -9,9 +9,6 @@ import { useInView } from "@/hooks/use-in-view"
 import { cn } from "@/lib/utils"
 import type { MenuItem } from "@/lib/types"
 
-/** How many approved, available dishes the section shows. */
-const FEATURED_LIMIT = 6
-
 function FeaturedCard({
   item,
   index,
@@ -50,6 +47,10 @@ function FeaturedCard({
             ${item.price.toFixed(2)}
           </span>
         </div>
+
+        <p className="mt-2 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
+          {item.description}
+        </p>
 
         <div className="mt-3 flex flex-col gap-1.5 text-[12.5px] text-muted-foreground">
           <span className="flex items-center gap-1.5">
@@ -90,7 +91,7 @@ export function FeaturedMenu() {
 
   useEffect(() => {
     let alive = true
-    apiGet<{ items: MenuItem[] }>(`/api/menu?limit=${FEATURED_LIMIT}`).then(
+    apiGet<{ items: MenuItem[] }>(`/api/menu`).then(
       ({ data, error: err }) => {
         if (!alive) return
         setItems(data?.items ?? [])
@@ -174,7 +175,7 @@ export function FeaturedMenu() {
         ) : (
           <div
             ref={gridRef}
-            className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((item, index) => (
               <FeaturedCard
                 key={item._id}

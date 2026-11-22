@@ -1,13 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 export function useInView<T extends HTMLElement>(threshold = 0.18) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
+  // Use a state-backed node so the effect re-runs when the observed element
+  // mounts (e.g. after async data loads), not just once on first render.
+  const [node, setNode] = useState<T | null>(null)
+  const [inView, setInView] = useState(true)
+
+  const ref = useCallback((instance: T | null) => {
+    setNode(instance)
+  }, [])
 
   useEffect(() => {
-    const node = ref.current
     if (!node) return
 
     if (typeof IntersectionObserver === "undefined") {
@@ -26,10 +31,12 @@ export function useInView<T extends HTMLElement>(threshold = 0.18) {
       },
       { threshold, rootMargin: "0px 0px -8% 0px" }
     )
-
     observer.observe(node)
-    return () => observer.disconnect()
-  }, [threshold])
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [node, threshold])
 
   return [ref, inView] as const
 }
