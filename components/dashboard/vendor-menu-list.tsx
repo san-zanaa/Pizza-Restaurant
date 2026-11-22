@@ -186,6 +186,7 @@ export function VendorMenuList() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
+                      nativeButton={false}
                       render={
                         <Link
                           href={`/dashboard/menu/${item._id}`}
@@ -198,6 +199,7 @@ export function VendorMenuList() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
+                      nativeButton={false}
                       render={
                         <Link
                           href={`/dashboard/menu/${item._id}`}

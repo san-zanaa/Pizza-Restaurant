@@ -1,18 +1,8 @@
 import { betterAuth } from "better-auth"
-import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
+import { getDb, getMongoClient } from "@/lib/db"
 
 function createAuth() {
-  const mongoUri = process.env.MONGODB_URL?.trim()
-  if (!mongoUri) {
-    throw new Error(
-      "Missing MONGODB_URL environment variable. Set it in your local .env file and in your hosting provider's environment variables (e.g. Vercel → Project → Settings → Environment Variables)."
-    )
-  }
-
-  const client = new MongoClient(mongoUri)
-  const db = client.db()
-
   const googleClientId = process.env.GOOGLE_CLIENT_ID
   const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
 
@@ -55,8 +45,8 @@ function createAuth() {
         },
       },
     },
-    database: mongodbAdapter(db, {
-      client,
+    database: mongodbAdapter(getDb(), {
+      client: getMongoClient(),
     }),
   })
 }

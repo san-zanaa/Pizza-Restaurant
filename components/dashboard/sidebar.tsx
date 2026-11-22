@@ -93,6 +93,7 @@ function NavLinks({
             key={href}
             variant="ghost"
             render={<Link href={href} onClick={onNavigate} />}
+            nativeButton={false}
             aria-current={active ? "page" : undefined}
             className={cn(
               "w-full justify-start gap-3 font-medium",
@@ -172,6 +173,7 @@ function SidebarBody({
             <Button
               size="sm"
               render={<Link href="/dashboard/subscription" onClick={onNavigate} />}
+              nativeButton={false}
               className="w-full"
             >
               <Crown className="size-3.5" />
