@@ -54,7 +54,8 @@ export async function GET(request: Request) {
     items = all.slice(0, Math.min(Math.floor(limit), 100))
   }
 
-  return jsonOk({ items: items as MenuItem[] })
+  const serialized = items.map((it) => ({ ...it, _id: it._id?.toString?.() ?? it._id }))
+  return jsonOk({ items: serialized as MenuItem[] })
 }
 
 export async function POST(request: Request) {

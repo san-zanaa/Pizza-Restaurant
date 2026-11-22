@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getSessionUser } from "@/lib/session"
 import { jsonError, jsonOk, readJson, guardUser } from "@/lib/api"
 import { menuItemsCollection } from "@/lib/db"
+import { ObjectId } from "mongodb"
 import type { MenuItem } from "@/lib/types"
 
 export async function GET(
@@ -9,9 +10,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const existing = await menuItemsCollection().findOne({ _id: id })
+  let objectId: ObjectId
+  try {
+    objectId = new ObjectId(id)
+  } catch {
+    return jsonError("Menu item not found.", 404)
+  }
+  const existing = await menuItemsCollection().findOne({ _id: objectId })
   if (!existing) return jsonError("Menu item not found.", 404)
-  return jsonOk({ item: existing as MenuItem })
+  return jsonOk({ item: { ...existing, _id: existing._id.toString() } as MenuItem })
 }
 
 export async function PATCH(
