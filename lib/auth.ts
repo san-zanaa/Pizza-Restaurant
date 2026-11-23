@@ -10,7 +10,7 @@ function createAuth() {
     baseURL: process.env.BETTER_AUTH_URL?.trim() || undefined,
     emailAndPassword: {
       enabled: true,
-      
+      minPasswordLength: 6,
       sendResetPassword: async ({ user, url }) => {
         console.info(`[PizzaHub] Password reset link for ${user.email}: ${url}`)
       },
@@ -25,7 +25,7 @@ function createAuth() {
           },
         }
       : {}),
-  
+
     user: {
       additionalFields: {
         role: {
@@ -33,18 +33,45 @@ function createAuth() {
           defaultValue: "customer",
           input: true,
         },
-        blocked: {
+        isBlocked: {
           type: "boolean",
           defaultValue: false,
           input: false,
         },
-        plan: {
+        businessName: {
+          type: "string",
+          defaultValue: "",
+          input: false,
+        },
+        subscriptionPlan: {
           type: "string",
           defaultValue: "free",
           input: false,
         },
+        subscriptionExpiresAt: {
+          type: "string",
+          defaultValue: "",
+          input: false,
+        },
       },
     },
+
+  
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (data) => ({
+            data: {
+              ...data,
+              role: data.role === "vendor" ? "vendor" : "customer",
+              isBlocked: false,
+              subscriptionPlan: "free",
+            },
+          }),
+        },
+      },
+    },
+
     database: mongodbAdapter(getDb(), {
       client: getMongoClient(),
     }),
@@ -60,17 +87,6 @@ function getAuth(): AuthInstance {
   return instance
 }
 
-/**
- * The better-auth instance, created lazily on first use.
- *
- * `next build` imports the auth route to collect page data, and CI/build
- * environments often don't have the database env vars present — so this
- * module must never throw at import time. Missing env vars now surface as a
- * clear error on the first actual auth request instead.
- *
- * The proxy forwards every property access (including `in` checks used by
- * `toNextJsHandler`) to the real instance.
- */
 export const auth: AuthInstance = new Proxy({} as AuthInstance, {
   get(_target, property) {
     const target = getAuth()

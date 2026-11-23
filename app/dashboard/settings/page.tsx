@@ -1,16 +1,27 @@
-import { redirect } from "next/navigation"
-import { Crown, Mail, ShieldCheck, UserRound } from "lucide-react"
-import { getSessionUser } from "@/lib/session"
-import { PageHeader, StatusBadge } from "@/components/dashboard/ui"
+"use client"
 
-export default async function SettingsPage() {
-  const user = await getSessionUser()
-  if (!user) redirect("/sign-in")
+import { useRouter } from "next/navigation"
+import { Crown, LoaderCircle, Mail, ShieldCheck, UserRound } from "lucide-react"
+import { useState } from "react"
+import { toast } from "react-toastify"
+import { apiSend } from "@/lib/client-fetch"
+import {
+  Alert,
+  Btn,
+  Field,
+  PageHeader,
+  StatusBadge,
+  inputClass,
+} from "@/components/dashboard/ui"
+import { authClient } from "@/lib/auth-client"
+import type { AppUser } from "@/lib/types"
 
+
+export default function SettingsPage({ user }: { user: AppUser }) {
+  const router = useRouter()
   return (
     <>
-      <PageHeader title="Settings" subtitle="Your PizzaHub account details." />
-
+      <PageHeader title="Profile Settings" subtitle="Your PizzaHub account details." />
       <div className="max-w-xl rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-4">
           <span className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[#f4574a] to-[#ff7d68] text-lg font-extrabold text-white">
@@ -58,28 +69,124 @@ export default async function SettingsPage() {
           </div>
         </div>
 
+        <ProfileEditor user={user} />
+
         <p className="mt-5 text-[12.5px] leading-snug text-muted-foreground">
-          Need to change your email, password or name? Sign out and use the
-          sign-in page — account credentials are managed through PizzaHub&apos;s
-          secure auth flow.
+          Credentials live with PizzaHub&apos;s secure auth flow — if you need to
+          change your email or password, use the sign-in page&apos;s recovery
+          options.
         </p>
 
-        <form
-          action={async () => {
-            await fetch("/api/auth/signout", { method: "POST" })
-            redirect("/sign-in")
-          }}
-          method="post"
-          className="mt-3"
-        >
+        <div className="mt-6">
           <button
-            type="submit"
-            className="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
-          >
+            type="button"
+            onClick={async () => {
+              await authClient.signOut()
+              router.push("/sign-in")
+              router.refresh()
+            }}
+            className="inline-flex h-9 items-center justify-center rounded-full border border-rose-500/40 bg-rose-500/10 px-4 text-sm font-semibold text-rose-600 transition hover:bg-rose-500/20 focus-visible:ring-2 focus-visible:ring-rose-500/40 focus-visible:outline-none">
             Sign out
           </button>
-        </form>
+        </div>
       </div>
     </>
+  )
+}
+
+function ProfileEditor({ user }: { user: AppUser }) {
+  const [name, setName] = useState(user.name)
+  const [image, setImage] = useState(user.image ?? "")
+  const [businessName, setBusinessName] = useState(
+    user.role === "vendor" ? ((user as { businessName?: string }).businessName ?? "") : ""
+  )
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const router = useRouter()
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    setSuccess(null)
+
+    const payload: Record<string, unknown> = { name: name.trim() }
+    if (image.trim()) payload.image = image.trim()
+    if (user.role === "vendor" && businessName.trim()) {
+      payload.businessName = businessName.trim()
+    }
+
+    const { error: err } = await apiSend<{ user: AppUser }>(
+      "/api/profile",
+      "PATCH",
+      payload
+    )
+    setBusy(false)
+    if (err) {
+      setError(err)
+      toast.error(err)
+      return
+    }
+    setSuccess("Profile updated.")
+    toast.success("Profile updated.")
+    router.refresh()
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
+      <Field label="Name" htmlFor="profile-name" hint="Shown on orders and cards.">
+        <input
+          id="profile-name"
+          className={inputClass}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          maxLength={80}
+        />
+      </Field>
+
+      <Field
+        label="Profile Image"
+        htmlFor="profile-image"
+        hint="Direct https/http image link. Optional."
+      >
+        <input
+          id="profile-image"
+          type="url"
+          className={inputClass}
+          value={image}
+          placeholder="https://example.com/your-avatar.png"
+          onChange={(event) => setImage(event.target.value)}
+        />
+      </Field>
+
+      {user.role === "vendor" ? (
+        <Field
+          label="Business Name"
+          htmlFor="profile-business"
+          hint="Displayed next to your items on the menu and in orders."
+        >
+          <input
+            id="profile-business"
+            className={inputClass}
+            value={businessName}
+            onChange={(event) => setBusinessName(event.target.value)}
+            placeholder="Your pizzeria name"
+            maxLength={80}
+          />
+        </Field>
+      ) : null}
+
+      {error ? <Alert kind="error">{error}</Alert> : null}
+      {success ? <Alert kind="success">{success}</Alert> : null}
+
+      <div>
+        <Btn type="submit" disabled={busy}>
+          {busy ? <LoaderCircle className="size-4 animate-spin" /> : null}
+          {busy ? "Saving…" : "Save Profile"}
+        </Btn>
+      </div>
+    </form>
   )
 }

@@ -11,6 +11,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { Fragment, useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import {
   AlertDialog,
@@ -23,7 +24,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import {
   Alert,
   Btn,
@@ -76,15 +76,17 @@ export function CustomerOrders() {
     const { error: err } = await apiSend<{ order: Order }>(
       `/api/orders/${order._id}`,
       "PATCH",
-      { action: "cancel" }
+      { status: "cancelled" }
     )
     setBusyId(null)
     setConfirmId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
     setError(null)
+    toast.success("Order cancelled.")
     load()
   }
 
@@ -149,7 +151,7 @@ export function CustomerOrders() {
                           {order.itemName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          ${order.itemPrice.toFixed(2)}
+                          ৳{order.itemPrice.toFixed(0)}
                         </p>
                       </div>
                     </div>
@@ -174,7 +176,7 @@ export function CustomerOrders() {
                   </Td>
                   <Td className="text-right">
                     <div className="inline-flex items-center gap-1.5">
-                      {order.status === "Pending" ? (
+                      {order.status === "pending" ? (
                         <AlertDialog
                           open={confirmId === order._id}
                           onOpenChange={(open) => {

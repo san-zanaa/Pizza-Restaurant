@@ -1,29 +1,28 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Calendar,
   Check,
   CircleCheckBig,
   LoaderCircle,
+  Lock,
   MapPin,
   MessageSquare,
   Pizza,
   Store,
-  UserRound,
 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import {
   Alert,
   Btn,
   Field,
   inputClass,
-  StatusBadge,
 } from "@/components/dashboard/ui-custom"
-import type { AppUser, MenuItem } from "@/lib/types"
-
+import { primaryImage, type AppUser, type MenuItem } from "@/lib/types"
 
 export function MenuItemDetail({
   id,
@@ -32,19 +31,52 @@ export function MenuItemDetail({
   id: string
   user: AppUser | null
 }) {
+  const router = useRouter()
   const [item, setItem] = useState<MenuItem | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [activeImage, setActiveImage] = useState(0)
 
   useEffect(() => {
+    let alive = true
     apiGet<{ item: MenuItem }>(`/api/menu/${id}`).then(({ data, error }) => {
+      if (!alive) return
       if (error || !data?.item) {
         setNotFound(true)
         return
       }
       setItem(data.item)
+      setActiveImage(0)
     })
+    return () => {
+      alive = false
+    }
   }, [id])
+
+  const startOrdering = () => {
+    if (!user) {
+      toast.info("Sign in to place your order.")
+      router.push(`/sign-in?callbackUrl=${encodeURIComponent(`/menu/${id}`)}`)
+      return
+    }
+    if (user.blocked) {
+      toast.error("Your account has been blocked by an administrator.")
+      return
+    }
+    if (user.role === "admin") {
+      toast.error("Admin accounts can't place customer orders.")
+      return
+    }
+    if (user.role === "vendor" && item && item.vendorId === user.id) {
+      toast.error("You can't order an item from your own menu.")
+      return
+    }
+    if (item && item.status !== "approved") {
+      toast.error("This dish isn't available for ordering right now.")
+      return
+    }
+    setFormOpen(true)
+  }
 
   if (notFound) {
     return (
@@ -54,12 +86,12 @@ export function MenuItemDetail({
           This dish isn&apos;t on the menu
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          It may have been removed or is waiting for admin approval.
+          The item ID may be invalid, or the dish was removed, rejected or is
+          still waiting for admin approval.
         </p>
         <Link
           href="/menu"
-          className="mt-6 inline-flex h-10 items-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110"
-        >
+          className="mt-6 inline-flex h-10 items-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110">
           Back to Browse Menu
         </Link>
       </div>
@@ -69,6 +101,9 @@ export function MenuItemDetail({
   if (!item) {
     return (
       <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 lg:px-8">
+        <p className="sr-only" role="status">
+          Loading dish details…
+        </p>
         <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
           <div className="aspect-[4/3] animate-pulse rounded-3xl bg-muted" />
           <div className="flex flex-col gap-4 pt-2">
@@ -82,46 +117,75 @@ export function MenuItemDetail({
     )
   }
 
+  const images = item.images?.length ? item.images : [primaryImage(item)]
+  const orderable = item.status === "approved"
+
   return (
     <div className="mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
       <nav
         aria-label="Breadcrumb"
-        className="mb-5 text-[12.5px] font-semibold text-muted-foreground"
-      >
+        className="mb-5 text-[12.5px] font-semibold text-muted-foreground">
         <Link href="/menu" className="transition hover:text-[#f4574a]">
           Browse Menu
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-foreground">{item.name}</span>
+        <span className="text-foreground">{item.itemName}</span>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-          <img
-            src={item.image}
-            alt={item.name}
-            className="size-full object-cover"
-          />
-          <span className="absolute top-4 left-4 rounded-full bg-black/55 px-3 py-1 text-[11px] font-extrabold tracking-wider text-white uppercase backdrop-blur">
-            {item.category}
-          </span>
+        <div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[activeImage] ?? ""}
+              alt={item.itemName}
+              className="size-full object-cover"
+            />
+            <span className="absolute top-4 left-4 rounded-full bg-black/55 px-3 py-1 text-[11px] font-extrabold tracking-wider text-white uppercase backdrop-blur">
+              {item.category}
+            </span>
+            {!orderable ? (
+              <span className="absolute right-4 bottom-4 rounded-full bg-amber-500 px-3 py-1 text-[11px] font-extrabold tracking-wider text-black uppercase">
+                {item.status}
+              </span>
+            ) : null}
+          </div>
+
+          {images.length > 1 ? (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              {images.map((src, index) => (
+                <button
+                  key={`${src}-${index}`}
+                  type="button"
+                  onClick={() => setActiveImage(index)}
+                  aria-label={`View image ${index + 1}`}
+                  aria-pressed={index === activeImage}
+                  className={`size-16 shrink-0 overflow-hidden rounded-xl border-2 transition ${
+                    index === activeImage
+                      ? "border-[#f4574a]"
+                      : "border-border opacity-70 hover:opacity-100"
+                  }`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="size-full object-cover" />
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col">
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-              {item.name}
+              {item.itemName}
             </h1>
             <span className="shrink-0 rounded-full bg-[#f4574a]/10 px-3.5 py-1.5 text-lg font-extrabold text-[#f4574a]">
-              BDT {item.price}
+              ৳{item.price}
             </span>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="rounded-full bg-[#f4574a]/10 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#f4574a] uppercase">
-                {item.category}
-              </span>
+            <span className="rounded-full bg-[#f4574a]/10 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#f4574a] uppercase">
+              {item.category}
             </span>
           </div>
 
@@ -129,129 +193,37 @@ export function MenuItemDetail({
             {item.description}
           </p>
 
-          {item.details ? (
-            <p className="mt-3 text-[13.5px] leading-relaxed text-muted-foreground">
-              {item.details}
-            </p>
-          ) : null}
-
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {item.rating ? (
-              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
-                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                  Rating
-                </p>
-                <p className="mt-0.5 text-[14px] font-bold text-foreground">
-                  ★ {item.rating}{" "}
-                  <span className="text-[12px] font-medium text-muted-foreground">
-                    ({item.reviewCount ?? 0} reviews)
-                  </span>
-                </p>
-              </div>
-            ) : null}
-            {item.preparationTime ? (
-              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
-                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                  Prep time
-                </p>
-                <p className="mt-0.5 text-[14px] font-bold text-foreground">
-                  {item.preparationTime}
-                </p>
-              </div>
-            ) : null}
-            {item.spiceLevel && item.spiceLevel !== "None" ? (
-              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
-                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                  Spice level
-                </p>
-                <p className="mt-0.5 text-[14px] font-bold text-foreground">
-                  {item.spiceLevel}
-                </p>
-              </div>
-            ) : null}
-            {item.dietary && item.dietary.length ? (
-              <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
-                <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                  Dietary
-                </p>
-                <p className="mt-0.5 text-[14px] font-bold text-foreground">
-                  {item.dietary.join(", ")}
-                </p>
-              </div>
-            ) : null}
+            <InfoTile
+              icon={<MapPin className="size-4" />}
+              label="Location"
+              value={item.location || "—"}
+            />
+            <InfoTile
+              icon={<Store className="size-4" />}
+              label="Vendor"
+              value={item.vendorName || "PizzaHub vendor"}
+            />
           </div>
 
-          {item.sizes && item.sizes.length ? (
-            <div className="mt-5">
-              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                Sizes &amp; prices
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {item.sizes.map((size) => (
-                  <span
-                    key={size.name}
-                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-[12.5px] font-semibold text-foreground"
-                  >
-                    {size.name}
-                    {size.diameter ? (
-                      <span className="text-muted-foreground">
-                        ({size.diameter})
-                      </span>
-                    ) : null}
-                    <span className="font-extrabold text-[#f4574a]">
-                      {item.currency} {size.price}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {item.ingredients && item.ingredients.length ? (
-            <div className="mt-5">
-              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                Ingredients
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {item.ingredients.map((ing) => (
-                  <span
-                    key={ing}
-                    className="rounded-full bg-muted px-3 py-1 text-[12px] font-medium text-foreground"
-                  >
-                    {ing}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {item.allergens && item.allergens.length ? (
-            <div className="mt-4">
-              <p className="text-[12.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
-                Allergens
-              </p>
-              <p className="mt-1 text-[13px] text-rose-600 dark:text-rose-400">
-                {item.allergens.join(", ")}
-              </p>
-            </div>
-          ) : null}
-
           <div className="mt-7">
-            {formOpen ? (
+            {formOpen && orderable ? (
               <OrderForm
                 user={user}
                 item={item}
-                onDone={() => {
-                  setFormOpen(false)
-                }}
+                onDone={() => setFormOpen(false)}
               />
             ) : (
               <Btn
-                onClick={() => setFormOpen(true)}
-                className="h-12 w-full text-[15px] sm:w-auto sm:px-10"
-              >
-                <Pizza className="size-5" />
-                Order this dish
+                onClick={startOrdering}
+                disabled={!orderable}
+                className="h-12 w-full text-[15px] sm:w-auto sm:px-10">
+                {!user ? <Lock className="size-5" /> : <Pizza className="size-5" />}
+                {!user
+                  ? "Sign in to Order"
+                  : orderable
+                    ? "Order this dish"
+                    : "Currently unavailable"}
               </Btn>
             )}
           </div>
@@ -262,6 +234,28 @@ export function MenuItemDetail({
           </p>
         </div>
       </div>
+    </div>
+  )
+}
+
+function InfoTile({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
+      <p className="flex items-center gap-1.5 text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
+        <span className="text-[#f4574a]">{icon}</span>
+        {label}
+      </p>
+      <p className="mt-0.5 truncate text-[14px] font-bold text-foreground">
+        {value}
+      </p>
     </div>
   )
 }
@@ -311,7 +305,7 @@ function OrderForm({
     setSubmitting(true)
     setError(null)
 
-    const { data, error: err } = await apiSend<{ order: { _id: string } }>(
+    const { error: err } = await apiSend<{ order: { _id: string } }>(
       "/api/orders",
       "POST",
       {
@@ -325,25 +319,15 @@ function OrderForm({
     setSubmitting(false)
 
     if (err) {
-      if (err.toLowerCase().includes("signed in")) {
-        setError(
-          <>
-            {err}{" "}
-            <Link href="/sign-in" className="font-bold underline">
-              Sign in
-            </Link>{" "}
-            to place your order.
-          </>
-        )
-      } else {
-        setError(err)
-      }
+      setError(err)
+      toast.error(err)
       return
     }
 
     setSuccess(
       "Order placed! It's pending — the vendor will accept or reject it shortly."
     )
+    toast.success("Order placed successfully.")
   }
 
   if (success) {
@@ -359,8 +343,7 @@ function OrderForm({
         <div className="mt-5 flex flex-wrap gap-2">
           <Link
             href="/dashboard/orders"
-            className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110"
-          >
+            className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110">
             <Check className="size-4" />
             View my orders
           </Link>
@@ -376,25 +359,19 @@ function OrderForm({
     <form
       onSubmit={submit}
       noValidate
-      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6"
-    >
+      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <p className="text-[15px] font-extrabold text-foreground">
         Place your order
       </p>
       <p className="mt-1 text-[12.5px] text-muted-foreground">
-        Detected automatically — no need to type them.
+        Customer, vendor and item are detected automatically.
       </p>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <DetectedChip label="Customer" value={user?.email || "Sign in required"} />
+        <DetectedChip label="Vendor" value={item.vendorName || "—"} />
+        <DetectedChip label="Item" value={item.itemName} />
         <DetectedChip
-          icon={UserRound}
-          label="Customer"
-          value={user ? user.email : "Sign in required"}
-        />
-        
-        <DetectedChip icon={Pizza} label="Item" value={item.name} />
-        <DetectedChip
-          icon={Calendar}
           label="Delivery"
           value={deliveryDate || "Pick a date"}
         />
@@ -431,8 +408,7 @@ function OrderForm({
         <Field
           label="Additional Message / Special Instructions"
           htmlFor="order-message"
-          hint="Optional — allergies, extra toppings, delivery notes…"
-        >
+          hint="Optional — allergies, extra toppings, delivery notes…">
           <textarea
             id="order-message"
             rows={2}
@@ -462,18 +438,10 @@ function OrderForm({
   )
 }
 
-function DetectedChip({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string
-}) {
+function DetectedChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <Icon className="size-4 shrink-0 text-[#f4574a]" />
+      <Calendar className="size-4 shrink-0 text-[#f4574a]" />
       <div className="min-w-0">
         <p className="text-[10.5px] font-extrabold tracking-wider text-muted-foreground uppercase">
           {label}

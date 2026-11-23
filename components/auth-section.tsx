@@ -17,7 +17,6 @@ import {
   Mail,
   Pizza,
   Send,
-  Shield,
   ShieldCheck,
   Sparkles,
   Ticket,
@@ -26,9 +25,11 @@ import {
 import { cn } from "@/lib/utils"
 import { useInView } from "@/hooks/use-in-view"
 import { authClient } from "@/lib/auth-client"
+import { passwordError } from "@/lib/password"
 
 type Mode = "signin" | "signup" | "forgot"
-type RoleId = "customer" | "vendor" | "admin"
+/** Public registration only ever offers these two — admins are assigned in the database. */
+type RoleId = "customer" | "vendor"
 type Status = "idle" | "error" | "submitting" | "success"
 type FieldName = "name" | "email" | "password"
 
@@ -353,13 +354,6 @@ const ROLES: {
     accent: "#4ade80",
     helper: "Run your pizzeria storefront, payouts and kitchen analytics.",
   },
-  {
-    id: "admin",
-    label: "Admin",
-    icon: Shield,
-    accent: "#60a5fa",
-    helper: "Moderate partners, disputes and platform-wide health.",
-  },
 ]
 
 const COPY: Record<
@@ -414,10 +408,14 @@ const SOCIALS: {
   { id: "apple", label: "Apple ID", glyph: AppleGlyph },
 ]
 
-export function AuthSection() {
+export function AuthSection({
+  initialMode = "signin",
+}: {
+  initialMode?: Mode
+} = {}) {
   const router = useRouter()
 
-  const [mode, setMode] = useState<Mode>("signin")
+  const [mode, setMode] = useState<Mode>(initialMode)
   const [role, setRole] = useState<RoleId>("customer")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -495,15 +493,17 @@ export function AuthSection() {
     if (mode !== "forgot") {
       if (!password)
         return { field: "password", text: "Enter your password to continue." }
-      if (mode === "signup" && password.length < 8) {
-        return {
-          field: "password",
-          text: "Use at least 8 characters for your password.",
-        }
+      if (mode === "signup") {
+        const problem = passwordError(password)
+        if (problem) return { field: "password", text: problem }
       }
     }
     return null
   }
+
+  /** After auth we always land on the page that matches the account's role. */
+  const homeForRole = (nextRole?: RoleId) =>
+    nextRole === "vendor" ? "/dashboard" : "/"
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -536,14 +536,26 @@ export function AuthSection() {
         }
         setMessage("Welcome back — taking you to the kitchen…")
         setStatus("success")
-        redirectTimer.current = window.setTimeout(() => router.push("/"), 900)
+        const signedInRole = (res.data?.user as { role?: string } | undefined)
+          ?.role
+        redirectTimer.current = window.setTimeout(
+          () =>
+            router.push(
+              signedInRole === "vendor" || signedInRole === "admin"
+                ? "/dashboard"
+                : "/"
+            ),
+          900
+        )
       } else if (mode === "signup") {
         const res = await authClient.signUp.email({
           name: name.trim(),
           email: email.trim(),
           password,
-          // "Designate access role" — customer, vendor or admin.
-          role,
+          // "Designate access role" — Customer or Vendor. The generated
+          // client type doesn't list the additional field, but the API
+          // passes through user input (sign-up.mjs → parseUserInput).
+          ...({ role } as Record<string, unknown>),
         })
         if (res?.error) {
           throw new Error(
@@ -569,7 +581,10 @@ export function AuthSection() {
           setMessage("Account created — please sign in to continue.")
         }
         setStatus("success")
-        redirectTimer.current = window.setTimeout(() => router.push("/"), 1000)
+        redirectTimer.current = window.setTimeout(
+          () => router.push(homeForRole(role)),
+          1000
+        )
       } else {
         const res = await authClient.requestPasswordReset({
           email: email.trim(),

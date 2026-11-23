@@ -1,19 +1,17 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Check,
   CircleCheckBig,
   Eye,
   LoaderCircle,
-  MapPin,
-  Pencil,
-  Plus,
   Trash2,
   UtensilsCrossed,
 } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
+import { toast } from "react-toastify"
 import { apiSend } from "@/lib/client-fetch"
 import {
   Alert,
@@ -22,10 +20,10 @@ import {
   inputClass,
   StatusBadge,
 } from "@/components/dashboard/ui"
-import { MENU_CATEGORIES, type MenuItem } from "@/lib/types"
+import { MENU_CATEGORIES, primaryImage, type MenuItem } from "@/lib/types"
 
 type FormState = {
-  name: string
+  itemName: string
   category: string
   description: string
   price: string
@@ -33,7 +31,7 @@ type FormState = {
 }
 
 const EMPTY: FormState = {
-  name: "",
+  itemName: "",
   category: "",
   description: "",
   price: "",
@@ -42,16 +40,16 @@ const EMPTY: FormState = {
 
 function toState(item: MenuItem): FormState {
   return {
-    name: item.name,
+    itemName: item.itemName,
     category: item.category,
     description: item.description,
     price: String(item.price),
-    location: "",
+    location: item.location ?? "",
   }
 }
 
 function validate(state: FormState, imageUrl: string, requireImage: boolean) {
-  if (state.name.trim().length < 2)
+  if (state.itemName.trim().length < 2)
     return "Item name must be at least 2 characters."
   if (!state.category) return "Pick a category."
   if (state.description.trim().length < 10)
@@ -61,12 +59,21 @@ function validate(state: FormState, imageUrl: string, requireImage: boolean) {
     return "Price must be greater than 0."
   if (state.location.trim().length < 2)
     return "Location (area / city) is required."
-  if (requireImage && !imageUrl) return "Upload an item image (required)."
+  if (requireImage && !imageUrl) return "An item image link is required."
+  if (imageUrl) {
+    try {
+      const url = new URL(imageUrl)
+      if (url.protocol !== "http:" && url.protocol !== "https:")
+        return "Enter a valid image link (http/https)."
+    } catch {
+      return "Enter a valid image link."
+    }
+  }
   return null
 }
 
 /* ------------------------------------------------------------------ */
-/* ImgBB file uploader                                                 */
+/* Image link input                                                    */
 /* ------------------------------------------------------------------ */
 
 function ImageUploader({
@@ -78,46 +85,15 @@ function ImageUploader({
   setImageUrl: (value: string) => void
   error?: string
 }) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-
-  const pick = async (file: File) => {
-    setUploading(true)
-    setUploadError(null)
-    try {
-      const form = new FormData()
-      form.append("file", file)
-      const res = await fetch("/api/upload", { method: "POST", body: form })
-      const body = (await res.json().catch(() => ({}))) as {
-        url?: string
-        error?: string
-      }
-      if (!res.ok || !body.url) {
-        setUploadError(body.error ?? "Upload failed — try a different image.")
-        return
-      }
-      setImageUrl(body.url)
-    } catch {
-      setUploadError("Network error — the image couldn't be uploaded.")
-    } finally {
-      setUploading(false)
-      if (inputRef.current) inputRef.current.value = ""
-    }
-  }
-
   return (
-    <div>
+    <div className="space-y-3">
       <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        aria-label="Upload item image"
-        onChange={(event) => {
-          const file = event.target.files?.[0]
-          if (file) void pick(file)
-        }}
+        type="url"
+        className={inputClass}
+        value={imageUrl}
+        onChange={(event) => setImageUrl(event.target.value)}
+        placeholder="https://example.com/item-image.jpg"
+        aria-label="Item image link"
       />
       {imageUrl ? (
         <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-3">
@@ -126,11 +102,14 @@ function ImageUploader({
             src={imageUrl}
             alt="Item preview"
             className="size-24 rounded-xl border border-border object-cover"
+            onError={(event) => {
+              ;(event.currentTarget as HTMLImageElement).style.opacity = "0.4"
+            }}
           />
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1.5 text-[13px] font-bold text-emerald-600 dark:text-emerald-400">
               <Check className="size-4" />
-              Image uploaded via ImgBB
+              Image link added
             </p>
             <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
               {imageUrl}
@@ -140,46 +119,19 @@ function ImageUploader({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => inputRef.current?.click()}
+            onClick={() => setImageUrl("")}
           >
-            {uploading ? (
-              <LoaderCircle className="size-3.5 animate-spin" />
-            ) : (
-              <Pencil className="size-3.5" />
-            )}
-            Replace
+            <Trash2 className="size-3.5" />
+            Remove
           </Btn>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex h-36 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/20 text-center transition hover:border-[#f4574a]/50 hover:bg-[#f4574a]/5 focus-visible:ring-2 focus-visible:ring-[#f4574a]/50 focus-visible:outline-none"
-        >
-          {uploading ? (
-            <LoaderCircle className="size-6 animate-spin text-[#f4574a]" />
-          ) : (
-            <span className="grid size-10 place-items-center rounded-full bg-[#f4574a]/10 text-[#f4574a]">
-              <Plus className="size-5" />
-            </span>
-          )}
-          <span className="text-[13px] font-bold text-foreground">
-            {uploading
-              ? "Uploading to ImgBB…"
-              : "Click to upload the item image"}
-          </span>
-          <span className="text-[12px] text-muted-foreground">
-            PNG, JPG or WebP · max 5 MB · required
-          </span>
-        </button>
-      )}
-      {uploadError ? (
-        <p className="mt-1.5 text-[12.5px] font-medium text-rose-500 dark:text-rose-400">
-          {uploadError}
+        <p className="text-[12px] text-muted-foreground">
+          Paste a direct image link (any format) — required for new items.
         </p>
-      ) : null}
+      )}
       {error ? (
-        <p className="mt-1.5 text-[12.5px] font-medium text-rose-500 dark:text-rose-400">
+        <p className="text-[12.5px] font-medium text-rose-500 dark:text-rose-400">
           {error}
         </p>
       ) : null}
@@ -194,7 +146,7 @@ function ImageUploader({
 export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
   const editing = Boolean(item)
   const [state, setState] = useState<FormState>(item ? toState(item) : EMPTY)
-  const [imageUrl, setImageUrl] = useState(item?.image ?? "")
+  const [imageUrl, setImageUrl] = useState(() => (item ? primaryImage(item) : ""))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
@@ -219,12 +171,12 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
     setImageError(null)
 
     const payload = {
-      name: state.name.trim(),
+      itemName: state.itemName.trim(),
       category: state.category,
       description: state.description.trim(),
       price: Number(state.price),
       location: state.location.trim(),
-      imageUrl,
+      images: [imageUrl],
     }
 
     const result = editing
@@ -238,13 +190,14 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
     setSubmitting(false)
     if (result.error) {
       setError(result.error)
+      toast.error(result.error)
       return
     }
-    setDone(
-      editing
-        ? "Changes saved."
-        : "Submitted! An admin will review it before it goes live."
-    )
+    const message = editing
+      ? "Changes saved."
+      : "Submitted! An admin will review it before it goes live."
+    setDone(message)
+    toast.success(message)
   }
 
   return (
@@ -252,15 +205,22 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
       {editing ? (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <StatusBadge status={item!.isAvailable ? "Active" : "Inactive"} />
+            <StatusBadge status={item!.status} />
             <span
               className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold tracking-wide uppercase ${
-                item!.isAvailable
+                item!.status === "approved"
                   ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300"
-                  : "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300"
-              }`}
-            >
-              {item!.isAvailable ? "Active" : "Inactive"}
+                  : item!.status === "pending"
+                    ? "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300"
+                    : item!.status === "rejected"
+                      ? "border-rose-400/40 bg-rose-400/10 text-rose-600 dark:text-rose-300"
+                      : "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300"
+              }`}>
+              {item!.status === "approved"
+                ? "Live"
+                : item!.status === "inactive"
+                  ? "Hidden"
+                  : item!.status}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -297,8 +257,8 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
             <input
               id="item-name"
               className={inputClass}
-              value={state.name}
-              onChange={(event) => set("name")(event.target.value)}
+              value={state.itemName}
+              onChange={(event) => set("itemName")(event.target.value)}
               placeholder="Margherita Classica"
               maxLength={80}
             />
@@ -322,7 +282,7 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
                 ))}
               </select>
             </Field>
-            <Field label="Price (USD)" required htmlFor="item-price">
+            <Field label="Price (BDT)" required htmlFor="item-price">
               <input
                 id="item-price"
                 type="number"
@@ -332,7 +292,7 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
                 className={inputClass}
                 value={state.price}
                 onChange={(event) => set("price")(event.target.value)}
-                placeholder="12.50"
+                placeholder="450"
               />
             </Field>
           </div>
@@ -373,7 +333,7 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
             label="Item Image"
             required={!editing}
             htmlFor="item-image"
-            hint="Uploaded as a file through ImgBB — required for new items."
+            hint="Paste a direct image link — required for new items."
           >
             <ImageUploader
               imageUrl={imageUrl}
@@ -421,6 +381,7 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
 }
 
 function ItemDeleter({ item }: { item: MenuItem }) {
+  const router = useRouter()
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -431,10 +392,12 @@ function ItemDeleter({ item }: { item: MenuItem }) {
     setBusy(false)
     if (err) {
       setError(err)
+      toast.error(err)
       setConfirming(false)
       return
     }
-    window.location.href = "/dashboard/menu"
+    toast.success(`"${item.itemName}" deleted.`)
+    router.push("/dashboard/menu")
   }
 
   if (error) {

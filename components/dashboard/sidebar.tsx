@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
+import { clearAuthToken } from "@/lib/client-fetch"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -34,27 +35,27 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const VENDOR_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/menu/new", label: "Add Menu Item", icon: Plus },
-  { href: "/dashboard/menu", label: "My Menu Items", icon: UtensilsCrossed },
-  { href: "/dashboard/orders", label: "Customer Orders", icon: ClipboardList },
-  { href: "/dashboard/subscription", label: "Subscription", icon: Crown },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-]
-
-const CUSTOMER_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/orders", label: "My Orders", icon: ClipboardList },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-]
-
+/** Admin nav: exactly the spec's list — no item editing or Settings entries. */
 const ADMIN_NAV: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/users", label: "Manage Users", icon: Users },
   { href: "/dashboard/menu-items", label: "Manage Menu Items", icon: Pizza },
   { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+]
+
+const CUSTOMER_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/orders", label: "My Orders", icon: ClipboardList },
+  { href: "/dashboard/settings", label: "Profile Settings", icon: Settings },
+]
+
+const VENDOR_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/menu", label: "My Menu Items", icon: UtensilsCrossed },
+  { href: "/dashboard/menu/new", label: "Add Menu Item", icon: Plus },
+  { href: "/dashboard/orders", label: "Customer Orders", icon: ClipboardList },
+  { href: "/dashboard/subscription", label: "Subscription", icon: Crown },
+  { href: "/dashboard/settings", label: "Profile Settings", icon: Settings },
 ]
 
 const ROLE_LABEL: Record<AppUser["role"], string> = {
@@ -124,6 +125,7 @@ function SidebarBody({
   const nav = navFor(user.role)
 
   const signOut = async () => {
+    clearAuthToken()
     await authClient.signOut()
     router.push("/")
     router.refresh()

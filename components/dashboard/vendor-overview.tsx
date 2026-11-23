@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
 import { Card } from "@/components/ui/card"
 import { Btn, Loading, PageHeader, StatCard } from "@/components/dashboard/ui"
+import { OverviewBars } from "@/components/dashboard/overview-bars"
 import type { AppUser } from "@/lib/types"
 
 type Overview = {
@@ -118,6 +119,32 @@ export function VendorOverview({ user }: { user: AppUser }) {
               </Btn>
             </Card>
           ) : null}
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <OverviewBars
+              title="Active menu items"
+              icon={BadgeCheck}
+              series={[
+                { label: "Active", value: data.activeItems },
+                { label: "Total", value: data.totalItems },
+                {
+                  label: "Limit",
+                  value: data.plan === "premium" ? 0 : 3,
+                },
+              ]}
+              height={56}
+            />
+            <OverviewBars
+              title="Order pipeline"
+              icon={Clock}
+              series={[
+                { label: "Pending", value: data.pendingOrders },
+                { label: "Accepted", value: data.acceptedOrders },
+                { label: "Rejected", value: data.rejectedOrders },
+              ]}
+              height={56}
+            />
+          </div>
         </>
       ) : null}
     </>

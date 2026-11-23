@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { getSessionUser } from "@/lib/session"
-import { menuItemsCollection } from "@/lib/db"
+import { serverApi } from "@/lib/server-api"
 import { VendorMenuItemForm } from "@/components/dashboard/vendor-menu-form"
 import { PageHeader } from "@/components/dashboard/ui"
 import type { MenuItem } from "@/lib/types"
@@ -13,21 +13,19 @@ export default async function MenuItemDetailPage({ params }: Params) {
   if (user.role !== "vendor") redirect("/dashboard")
 
   const { id } = await params
-  const item = await menuItemsCollection().findOne({ _id: id })
-  if (!item || item.vendorId !== user.id) notFound()
+  const { data } = await serverApi<{ item: MenuItem }>(`/api/menu/${id}`)
+  const item = data?.item
 
-  const serializable: MenuItem = {
-    ...item,
-    _id: String(item._id),
-  }
+  // Ownership is verified server-side too — this just keeps the 404 tidy.
+  if (!item || item.vendorId !== user.id) notFound()
 
   return (
     <>
       <PageHeader
-        title={item.name}
+        title={item.itemName}
         subtitle={`${item.category} · ${item.location}`}
       />
-      <VendorMenuItemForm item={serializable} />
+      <VendorMenuItemForm item={item} />
     </>
   )
 }

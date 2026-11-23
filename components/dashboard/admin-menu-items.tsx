@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import { Input } from "@/components/ui/input"
 import {
@@ -45,7 +46,7 @@ import {
   THead,
   Tr,
 } from "@/components/dashboard/ui"
-import { MENU_CATEGORIES, MENU_STATUSES, type MenuItem } from "@/lib/types"
+import { MENU_CATEGORIES, MENU_STATUSES, primaryImage, type MenuItem } from "@/lib/types"
 
 /** Admin → Manage Menu Items: search, filter, review, status changes, delete. */
 export function AdminMenuItems() {
@@ -84,9 +85,11 @@ export function AdminMenuItems() {
     setBusyId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
     setError(null)
+    toast.success(`"${item.itemName}" is now ${next}.`)
     load()
   }
 
@@ -97,8 +100,10 @@ export function AdminMenuItems() {
     setConfirmId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
+    toast.success(`"${item.itemName}" deleted.`)
     setItems((prev) => (prev ?? []).filter((row) => row._id !== item._id))
   }
 
@@ -184,52 +189,49 @@ export function AdminMenuItems() {
               <Tr key={item._id}>
                 <Td>
                   <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={primaryImage(item)}
+                      alt={item.itemName}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
                     <div className="min-w-0">
                       <p className="max-w-[220px] truncate font-semibold">
-                        {item.name}
+                        {item.itemName}
                       </p>
                       <p className="max-w-[220px] truncate text-xs text-muted-foreground">
-                        —
+                        {item.vendorName}
                       </p>
                     </div>
                   </div>
                 </Td>
-                <Td className="text-[13px] font-medium">
-                  {item.name}
-                </Td>
+                <Td className="text-[13px] font-medium">{item.vendorName}</Td>
                 <Td>
                   <span className="text-[13px] text-muted-foreground">
                     {item.category}
                   </span>
                 </Td>
-                <Td className="font-semibold">${item.price.toFixed(2)}</Td>
+                <Td className="font-semibold">৳{item.price.toFixed(0)}</Td>
                 <Td>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status ?? ""} />
                 </Td>
                 <Td>
-                  {item.availability ? (
+                  {item.status === "approved" ? (
                     <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                      Active
+                      Live
                     </span>
                   ) : (
                     <span className="text-xs font-medium text-muted-foreground">
-                      Inactive
+                      Hidden
                     </span>
                   )}
                 </Td>
                 <Td className="text-right">
                   <div className="inline-flex items-center justify-end gap-1.5">
-                    {item.status === "Pending" ? (
+                    {item.status === "pending" ? (
                       <>
                         <Btn
                           size="sm"
-                          onClick={() => setStatusOf(item, "Approved")}
+                          onClick={() => setStatusOf(item, "approved")}
                           disabled={busyId === item._id}
                         >
                           <Check className="size-3.5" />
@@ -238,18 +240,18 @@ export function AdminMenuItems() {
                         <Btn
                           size="sm"
                           variant="danger"
-                          onClick={() => setStatusOf(item, "Rejected")}
+                          onClick={() => setStatusOf(item, "rejected")}
                           disabled={busyId === item._id}
                         >
                           <CircleX className="size-3.5" />
                           Reject
                         </Btn>
                       </>
-                    ) : item.status === "Approved" ? (
+                    ) : item.status === "approved" ? (
                       <Btn
                         size="sm"
                         variant="danger"
-                        onClick={() => setStatusOf(item, "Rejected")}
+                        onClick={() => setStatusOf(item, "rejected")}
                         disabled={busyId === item._id}
                       >
                         <CircleX className="size-3.5" />
@@ -259,7 +261,7 @@ export function AdminMenuItems() {
                       <Btn
                         size="sm"
                         variant="outline"
-                        onClick={() => setStatusOf(item, "Approved")}
+                        onClick={() => setStatusOf(item, "approved")}
                         disabled={busyId === item._id}
                       >
                         <BadgeCheck className="size-3.5" />
@@ -277,7 +279,7 @@ export function AdminMenuItems() {
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label={`Delete ${item.name}`}
+                            aria-label={`Delete ${item.itemName}`}
                             className="text-muted-foreground hover:text-destructive"
                           />
                         }
@@ -287,11 +289,11 @@ export function AdminMenuItems() {
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            Delete &quot;{item.name}&quot;?
+                            Delete &quot;{item.itemName}&quot;?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
                             This permanently removes the item for{" "}
-                            {item.name}. This can&apos;t be undone.
+                            {item.vendorName}. This can&apos;t be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

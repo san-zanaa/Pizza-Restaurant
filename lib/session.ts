@@ -9,7 +9,10 @@ function normalize(raw: unknown): AppUser | null {
 
   const role: Role =
     user.role === "vendor" || user.role === "admin" ? user.role : "customer"
-  const plan: Plan = user.plan === "premium" ? "premium" : "free"
+  const plan: Plan =
+    user.subscriptionPlan === "premium" || user.plan === "premium"
+      ? "premium"
+      : "free"
 
   return {
     id: user.id,
@@ -17,7 +20,7 @@ function normalize(raw: unknown): AppUser | null {
     email: typeof user.email === "string" ? user.email : "",
     image: typeof user.image === "string" ? user.image : null,
     role,
-    blocked: user.blocked === true,
+    blocked: user.isBlocked === true || user.blocked === true,
     plan,
   }
 }

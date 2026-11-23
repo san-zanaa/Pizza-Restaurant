@@ -37,7 +37,7 @@ export function AdminTransactions() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    apiGet<{ transactions: Transaction[] }>("/api/admin/transactions").then(
+    apiGet<{ transactions: Transaction[] }>("/api/transactions").then(
       ({ data, error: err }) => {
         setTransactions(data?.transactions ?? null)
         setError(err)

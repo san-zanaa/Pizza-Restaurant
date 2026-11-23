@@ -1,6 +1,47 @@
-/** Tiny typed fetch helpers shared by the dashboard client components. */
 
 export type ApiResult<T> = { data: T | null; error: string | null }
+
+const BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+  "http://localhost:5000/api"
+
+const TOKEN_ENDPOINT = "/api/auth/token"
+
+type CachedToken = { token: string; expiresAt: number }
+let tokenCache: CachedToken | null = null
+
+export function clearAuthToken() {
+  tokenCache = null
+}
+
+async function fetchToken(force = false): Promise<string | null> {
+  if (!force && tokenCache && tokenCache.expiresAt - Date.now() > 15_000) {
+    return tokenCache.token
+  }
+  try {
+    const res = await fetch(TOKEN_ENDPOINT, { cache: "no-store" })
+    if (!res.ok) {
+      tokenCache = null
+      return null
+    }
+    const body = (await res.json().catch(() => null)) as {
+      token?: string
+      expiresInSeconds?: number
+    } | null
+    if (!body?.token) {
+      tokenCache = null
+      return null
+    }
+    tokenCache = {
+      token: body.token,
+      expiresAt: Date.now() + (body.expiresInSeconds ?? 900) * 1000,
+    }
+    return body.token
+  } catch {
+    tokenCache = null
+    return null
+  }
+}
 
 async function parse<T>(res: Response): Promise<ApiResult<T>> {
   const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
@@ -16,9 +57,23 @@ async function parse<T>(res: Response): Promise<ApiResult<T>> {
   return { data: body as T, error: null }
 }
 
-export async function apiGet<T>(url: string): Promise<ApiResult<T>> {
+async function request<T>(
+  path: string,
+  init: RequestInit,
+  retry = true
+): Promise<ApiResult<T>> {
+  const token = await fetchToken()
+  const headers = new Headers(init.headers)
+  if (init.body) headers.set("Content-Type", "application/json")
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+
   try {
-    const res = await fetch(url, { cache: "no-store" })
+    const res = await fetch(`${BASE}${path}`, { ...init, headers, cache: "no-store" })
+
+    if (res.status === 401 && retry && (await fetchToken(true))) {
+      return request<T>(path, init, false)
+    }
+
     return await parse<T>(res)
   } catch {
     return {
@@ -28,22 +83,17 @@ export async function apiGet<T>(url: string): Promise<ApiResult<T>> {
   }
 }
 
+export async function apiGet<T>(path: string): Promise<ApiResult<T>> {
+  return request<T>(path, { method: "GET" })
+}
+
 export async function apiSend<T>(
-  url: string,
+  path: string,
   method: "POST" | "PATCH" | "PUT" | "DELETE",
   payload?: unknown
 ): Promise<ApiResult<T>> {
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: payload === undefined ? undefined : JSON.stringify(payload),
-    })
-    return await parse<T>(res)
-  } catch {
-    return {
-      data: null,
-      error: "Network error — check your connection and retry.",
-    }
-  }
+  return request<T>(path, {
+    method,
+    body: payload === undefined ? undefined : JSON.stringify(payload),
+  })
 }

@@ -59,6 +59,21 @@ const BADGE_TONES: Record<string, string> = {
   Inactive:
     "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300",
   Blocked: "border-rose-400/40 bg-rose-400/10 text-rose-600 dark:text-rose-400",
+  /* lowercase values straight from the database */
+  pending:
+    "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300",
+  approved:
+    "border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300",
+  accepted:
+    "border-emerald-400/40 bg-emerald-400/10 text-emerald-600 dark:text-emerald-300",
+  rejected:
+    "border-rose-400/40 bg-rose-400/10 text-rose-600 dark:text-rose-300",
+  cancelled:
+    "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300",
+  inactive:
+    "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300",
+  processing:
+    "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300",
 }
 
 export function StatusBadge({

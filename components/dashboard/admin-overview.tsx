@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
 import { Card } from "@/components/ui/card"
 import { Loading, PageHeader, StatCard } from "@/components/dashboard/ui"
+import { OverviewBars } from "@/components/dashboard/overview-bars"
 import type { AppUser } from "@/lib/types"
 
 type Overview = {
@@ -51,7 +52,8 @@ export function AdminOverview({ user }: { user: AppUser }) {
       {!data && !error ? <Loading label="Loading platform totals…" /> : null}
 
       {data ? (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
           <StatCard
             label="Total registered users"
             value={data.totalUsers}
@@ -90,6 +92,32 @@ export function AdminOverview({ user }: { user: AppUser }) {
             tone="ember"
           />
         </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <OverviewBars
+            title="Platform totals"
+            icon={Users}
+            series={[
+              { label: "Users", value: data.totalUsers },
+              { label: "Vendors", value: data.totalVendors },
+              { label: "Customers", value: data.totalCustomers },
+              { label: "Menu", value: data.totalMenuItems },
+              { label: "Pending", value: data.pendingMenuItems },
+              { label: "Transactions", value: data.totalTransactions },
+            ]}
+            height={56}
+          />
+          <OverviewBars
+            title="Menu review pipeline"
+            icon={Pizza}
+            series={[
+              { label: "Live", value: data.totalMenuItems - data.pendingMenuItems },
+              { label: "Pending", value: data.pendingMenuItems },
+            ]}
+            height={56}
+          />
+        </div>
+        </>
       ) : null}
 
       <Card className="mt-4 flex flex-wrap items-center gap-2 px-4 py-3 text-[13px] text-muted-foreground">

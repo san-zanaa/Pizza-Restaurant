@@ -10,6 +10,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import {
   AlertDialog,
@@ -38,15 +39,19 @@ import {
   THead,
   Tr,
 } from "@/components/dashboard/ui"
-import type { MenuItem } from "@/lib/types"
+import { primaryImage, type MenuItem } from "@/lib/types"
 
 function money(value: number) {
-  return `$${value.toFixed(2)}`
+  return `৳${value.toFixed(0)}`
 }
 
+/** approved ⇄ inactive is the only transition a vendor may make themselves. */
+const canToggle = (item: MenuItem) =>
+  item.status === "approved" || item.status === "inactive"
+
 /**
- * Vendor's own menu items — every status (Pending / Approved / Rejected) is
- * visible to the vendor; only Approved + available ones reach customers.
+ * Vendor's own menu items — every status (pending / approved / rejected /
+ * inactive) is visible to the vendor; only approved ones reach customers.
  */
 export function VendorMenuList() {
   const [items, setItems] = useState<MenuItem[] | null>(null)
@@ -66,18 +71,26 @@ export function VendorMenuList() {
   useEffect(load, [])
 
   const toggleAvailability = async (item: MenuItem) => {
+    if (!canToggle(item)) return
     setBusyId(item._id)
+    const next = item.status === "approved" ? "inactive" : "approved"
     const { error: err } = await apiSend<{ item: MenuItem }>(
       `/api/menu/${item._id}`,
       "PATCH",
-      { isAvailable: !item.isAvailable }
+      { status: next }
     )
     setBusyId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
     setError(null)
+    toast.success(
+      next === "approved"
+        ? `"${item.itemName}" is now visible to customers.`
+        : `"${item.itemName}" is now hidden from customers.`
+    )
     load()
   }
 
@@ -88,8 +101,10 @@ export function VendorMenuList() {
     setConfirmId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
+    toast.success(`"${item.itemName}" deleted.`)
     setItems((prev) => (prev ?? []).filter((row) => row._id !== item._id))
   }
 
@@ -132,6 +147,7 @@ export function VendorMenuList() {
             <Tr>
               <Th>Item</Th>
               <Th>Category</Th>
+              <Th>Location</Th>
               <Th>Price</Th>
               <Th>Approval</Th>
               <Th>Availability</Th>
@@ -143,18 +159,17 @@ export function VendorMenuList() {
               <Tr key={item._id}>
                 <Td>
                   <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={primaryImage(item)}
+                      alt={item.itemName}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
                     <div className="min-w-0">
                       <p className="max-w-[220px] truncate font-semibold">
-                        {item.name}
+                        {item.itemName}
                       </p>
                       <p className="max-w-[220px] truncate text-xs text-muted-foreground">
-                        —
+                        {item.location || "—"}
                       </p>
                     </div>
                   </div>
@@ -164,20 +179,23 @@ export function VendorMenuList() {
                     {item.category}
                   </span>
                 </Td>
+                <Td className="text-[13px] text-muted-foreground">
+                  {item.location || "—"}
+                </Td>
                 <Td className="font-semibold">{money(item.price)}</Td>
                 <Td>
-                  <StatusBadge status={item.isAvailable ? "Active" : "Inactive"} />
+                  <StatusBadge status={item.status} />
                 </Td>
                 <Td>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={item.isAvailable}
+                      checked={item.status === "approved"}
                       onCheckedChange={() => toggleAvailability(item)}
-                      disabled={busyId === item._id}
-                      aria-label={`${item.isAvailable ? "Deactivate" : "Activate"} ${item.name}`}
+                      disabled={busyId === item._id || !canToggle(item)}
+                      aria-label={`${item.status === "approved" ? "Hide" : "Show"} ${item.itemName}`}
                     />
                     <span className="text-xs text-muted-foreground">
-                      {item.isAvailable ? "Active" : "Inactive"}
+                      {item.status === "approved" ? "On" : item.status === "inactive" ? "Off" : "—"}
                     </span>
                   </div>
                 </Td>
@@ -190,7 +208,7 @@ export function VendorMenuList() {
                       render={
                         <Link
                           href={`/dashboard/menu/${item._id}`}
-                          aria-label={`View ${item.name}`}
+                          aria-label={`View ${item.itemName}`}
                         />
                       }
                     >
@@ -203,7 +221,7 @@ export function VendorMenuList() {
                       render={
                         <Link
                           href={`/dashboard/menu/${item._id}`}
-                          aria-label={`Edit ${item.name}`}
+                          aria-label={`Edit ${item.itemName}`}
                         />
                       }
                     >
@@ -220,7 +238,7 @@ export function VendorMenuList() {
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            aria-label={`Delete ${item.name}`}
+                            aria-label={`Delete ${item.itemName}`}
                             className="text-muted-foreground hover:text-destructive"
                           />
                         }
@@ -230,7 +248,7 @@ export function VendorMenuList() {
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            Delete &quot;{item.name}&quot;?
+                            Delete &quot;{item.itemName}&quot;?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
                             This permanently removes the item from your menu.

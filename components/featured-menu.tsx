@@ -5,63 +5,10 @@ import { ArrowRight, Pizza } from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/client-fetch"
 import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
+import { MenuItemCard } from "@/components/menu-item-card"
 import { useInView } from "@/hooks/use-in-view"
 import { cn } from "@/lib/utils"
 import type { MenuItem } from "@/lib/types"
-
-function FeaturedCard({
-  item,
-  index,
-  visible,
-}: {
-  item: MenuItem
-  index: number
-  visible: boolean
-}) {
-  return (
-    <article
-      style={{ animationDelay: `${index * 70}ms` }}
-      className={cn(
-        "standard-reveal group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm",
-        "transition-all duration-300 hover:-translate-y-1 hover:border-[#f4574a]/40 hover:shadow-[0_24px_50px_-30px_rgba(244,87,74,0.6)]",
-        visible && "is-in"
-      )}>
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img
-          src={item.image}
-          alt={item.name}
-          loading="lazy"
-          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <span className="absolute top-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-[10.5px] font-extrabold tracking-wider text-white uppercase backdrop-blur">
-          {item.category}
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-[15px] leading-snug font-extrabold text-foreground">
-            {item.name}
-          </h3>
-          <span className="shrink-0 rounded-full bg-[#f4574a]/10 px-2.5 py-1 text-[13px] font-extrabold text-[#f4574a]">
-            BDT {item.price}
-          </span>
-        </div>
-
-        <p className="mt-2 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
-          {item.description}
-        </p>
-
-        <Link
-          href={`/menu/${item._id}`}
-          className="mt-4 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-[#f4574a]/40 text-[13px] font-bold text-[#f4574a] transition-colors hover:bg-[#f4574a] hover:text-white focus-visible:ring-2 focus-visible:ring-[#f4574a]/50 focus-visible:outline-none">
-          View Details
-          <ArrowRight className="size-3.5" aria-hidden="true" />
-        </Link>
-      </div>
-    </article>
-  )
-}
 
 export function FeaturedMenu() {
   const [headerRef, headerVisible] = useInView<HTMLDivElement>(0.25)
@@ -157,8 +104,8 @@ export function FeaturedMenu() {
           <div
             ref={gridRef}
             className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.slice(0,8).map((item, index) => (
-              <FeaturedCard
+            {items.slice(0, 8).map((item, index) => (
+              <MenuItemCard
                 key={item._id}
                 item={item}
                 index={index}

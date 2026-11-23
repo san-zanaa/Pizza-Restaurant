@@ -96,6 +96,21 @@ const STATUS_TONES: Record<string, string> = {
   premium:
     "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
   free: "border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400",
+  /* lowercase values straight from the database */
+  pending:
+    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  approved:
+    "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  accepted:
+    "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  rejected:
+    "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-400",
+  cancelled:
+    "border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400",
+  inactive:
+    "border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400",
+  processing:
+    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
 }
 
 export function StatusBadge({

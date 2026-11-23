@@ -12,6 +12,7 @@ import {
   UserRound,
 } from "lucide-react"
 import { Fragment, useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import {
   Alert,
@@ -67,14 +68,16 @@ export function VendorOrders() {
     const { error: err } = await apiSend<{ order: Order }>(
       `/api/orders/${order._id}`,
       "PATCH",
-      { action }
+      { status: action === "accept" ? "accepted" : "rejected" }
     )
     setBusyId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
     setError(null)
+    toast.success(action === "accept" ? "Order accepted." : "Order rejected.")
     load()
   }
 
@@ -142,7 +145,7 @@ export function VendorOrders() {
                           {order.itemName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          ${order.itemPrice.toFixed(2)}
+                          ৳{order.itemPrice.toFixed(0)}
                         </p>
                       </div>
                     </div>
@@ -164,7 +167,7 @@ export function VendorOrders() {
                   </Td>
                   <Td className="text-right">
                     <div className="inline-flex items-center gap-1.5">
-                      {order.status === "Pending" ? (
+                      {order.status === "pending" ? (
                         <>
                           <Btn
                             size="sm"

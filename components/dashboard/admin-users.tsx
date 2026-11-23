@@ -2,6 +2,7 @@
 
 import { Ban, CircleCheckBig, Search, Users } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,16 +26,7 @@ import {
   THead,
   Tr,
 } from "@/components/dashboard/ui"
-
-type AdminUser = {
-  id: string
-  name: string
-  email: string
-  role: string
-  blocked: boolean
-  plan: string
-  createdAt: string
-}
+import type { AdminUser } from "@/lib/types"
 
 const ROLE_OPTIONS = [
   { value: "all", label: "All roles" },
@@ -43,7 +35,7 @@ const ROLE_OPTIONS = [
   { value: "admin", label: "Admins" },
 ]
 
-function formatDate(iso: string) {
+function formatDate(iso?: string | null) {
   if (!iso) return "—"
   const date = new Date(iso)
   return Number.isNaN(date.getTime())
@@ -68,7 +60,7 @@ export function AdminUsers() {
     if (query) params.set("q", query)
     if (role) params.set("role", role)
     apiGet<{ users: AdminUser[] }>(
-      `/api/admin/users?${params.toString()}`
+      `/api/users?${params.toString()}`
     ).then(({ data, error: err }) => {
       setUsers(data?.users ?? null)
       setError(err)
@@ -79,19 +71,21 @@ export function AdminUsers() {
 
   const toggleBlock = async (target: AdminUser) => {
     setBusyId(target.id)
-    const { error: err } = await apiSend(
-      `/api/admin/users/${target.id}`,
+    const { error: err } = await apiSend<{ user: AdminUser }>(
+      `/api/users/${target.id}`,
       "PATCH",
-      {
-        action: target.blocked ? "unblock" : "block",
-      }
+      { blocked: !target.blocked }
     )
     setBusyId(null)
     if (err) {
       setError(err)
+      toast.error(err)
       return
     }
     setError(null)
+    toast.success(
+      target.blocked ? `"${target.name || target.email}" unblocked.` : `"${target.name || target.email}" blocked.`
+    )
     load()
   }
 

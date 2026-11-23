@@ -7,7 +7,7 @@ import { apiGet } from "@/lib/client-fetch"
 import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
 import { useInView } from "@/hooks/use-in-view"
 import { cn } from "@/lib/utils"
-import type { MenuItem } from "@/lib/types"
+import { primaryImage, type MenuItem } from "@/lib/types"
 
 type Combo = { items: MenuItem[] }
 
@@ -20,7 +20,7 @@ export function PopularCombos() {
 
   useEffect(() => {
     let alive = true
-    apiGet<{ items: MenuItem[] }>(`/api/menu?popular=true&limit=4`).then(
+    apiGet<{ items: MenuItem[] }>(`/api/menu?limit=4`).then(
       ({ data, error: err }) => {
         if (!alive) return
         if (err || !data) {
@@ -125,16 +125,16 @@ export function PopularCombos() {
                   <div className="grid w-2/5 grid-rows-2 gap-1 bg-muted sm:w-1/3">
                     <div className="relative overflow-hidden">
                       <img
-                        src={a.image}
-                        alt={a.name}
+                        src={primaryImage(a)}
+                        alt={a.itemName}
                         loading="lazy"
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
                     <div className="relative overflow-hidden">
                       <img
-                        src={b.image}
-                        alt={b.name}
+                        src={primaryImage(b)}
+                        alt={b.itemName}
                         loading="lazy"
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -148,8 +148,8 @@ export function PopularCombos() {
                     </span>
 
                     <h3 className="mt-3 text-lg font-extrabold leading-snug text-foreground sm:text-xl">
-                      {a.name}{" "}
-                      <span className="text-[#f4574a]">+</span> {b.name}
+                      {a.itemName}{" "}
+                      <span className="text-[#f4574a]">+</span> {b.itemName}
                     </h3>
 
                     <p className="mt-2 line-clamp-2 text-[13px] leading-snug text-muted-foreground">
@@ -176,13 +176,13 @@ export function PopularCombos() {
                         <Link
                           href={`/menu/${a._id}`}
                           className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#f4574a]/40 px-4 text-[12.5px] font-bold text-[#f4574a] transition-colors hover:bg-[#f4574a] hover:text-white">
-                          {a.name}
+                          {a.itemName}
                           <ArrowRight className="size-3.5" />
                         </Link>
                         <Link
                           href={`/menu/${b._id}`}
                           className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#f4574a]/40 px-4 text-[12.5px] font-bold text-[#f4574a] transition-colors hover:bg-[#f4574a] hover:text-white">
-                          {b.name}
+                          {b.itemName}
                           <ArrowRight className="size-3.5" />
                         </Link>
                       </div>

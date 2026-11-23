@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { ToastProvider } from "@/components/toast-provider"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { cn } from "@/lib/utils"
@@ -34,6 +35,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
+          <ToastProvider />
         </ThemeProvider>
       </body>
     </html>

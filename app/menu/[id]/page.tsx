@@ -1,17 +1,15 @@
-import { ObjectId } from "mongodb"
 import { getSessionUser } from "@/lib/session"
-import { menuItemsCollection } from "@/lib/db"
+import { serverApi } from "@/lib/server-api"
 import { MenuItemDetail } from "@/components/menu-item-detail"
+import type { MenuItem } from "@/lib/types"
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function generateMetadata({ params }: Params) {
   const { id } = await params
-  try {
-    const item = await menuItemsCollection().findOne({ _id: new ObjectId(id) })
-    return { title: item ? `${item.name} · PizzaHub` : "Dish · PizzaHub" }
-  } catch {
-    return { title: "Dish · PizzaHub" }
+  const { data } = await serverApi<{ item: MenuItem }>(`/api/menu/${id}`)
+  return {
+    title: data?.item ? `${data.item.itemName} · PizzaHub` : "Dish · PizzaHub",
   }
 }
 
