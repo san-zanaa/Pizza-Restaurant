@@ -1,13 +1,10 @@
+import { apiUrl } from "@/lib/api-url"
 
 export type ApiResult<T> = {
   data: T | null
   error: string | null
   status: number
 }
-
-const BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-  "http://localhost:5000/api"
 
 const TOKEN_ENDPOINT = "/api/auth/token"
 
@@ -73,7 +70,7 @@ async function request<T>(
   if (token) headers.set("Authorization", `Bearer ${token}`)
 
   try {
-    const res = await fetch(`${BASE}${path}`, { ...init, headers, cache: "no-store" })
+    const res = await fetch(apiUrl(path), { ...init, headers, cache: "no-store" })
 
     if (res.status === 401 && retry && (await fetchToken(true))) {
       return request<T>(path, init, false)

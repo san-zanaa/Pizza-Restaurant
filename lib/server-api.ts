@@ -1,11 +1,7 @@
 import { getSessionUser } from "@/lib/session"
 import { signAppJwt } from "@/lib/jwt"
+import { apiUrl } from "@/lib/api-url"
 import type { ApiResult } from "@/lib/client-fetch"
-
-const BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-  process.env.API_BASE_URL?.replace(/\/$/, "") ||
-  "http://localhost:5000/api"
 
 export async function serverApi<T>(
   path: string,
@@ -22,7 +18,7 @@ export async function serverApi<T>(
       headers.set("Authorization", `Bearer ${await signAppJwt(user)}`)
     }
 
-    const res = await fetch(`${BASE}${path}`, { ...init, headers, cache: "no-store" })
+    const res = await fetch(apiUrl(path), { ...init, headers, cache: "no-store" })
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
 
     if (!res.ok) {
