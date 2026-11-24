@@ -18,10 +18,7 @@ import type { LucideIcon } from "lucide-react"
 
 type CategoryRow = { category: string; count: number | null }
 
-/**
- * Accent palette, cycled across however many categories the API returns so
- * the grid still looks right if a category is added later.
- */
+
 const ACCENTS: { tile: string; count: string; explore: string; hover: string; focus: string }[] = [
   { tile: "bg-[#f4574a]/10 text-[#f4574a] ring-[#f4574a]/25", count: "text-[#f4574a]", explore: "text-[#f4574a]", hover: "hover:border-[#f4574a]/45 hover:shadow-[0_18px_40px_-26px_rgba(244,87,74,0.75)]", focus: "focus-visible:ring-[#f4574a]/50" },
   { tile: "bg-violet-500/10 text-violet-600 ring-violet-500/25 dark:text-violet-400", count: "text-violet-600 dark:text-violet-400", explore: "text-violet-600 dark:text-violet-400", hover: "hover:border-violet-500/45 hover:shadow-[0_18px_40px_-26px_rgba(139,92,246,0.75)]", focus: "focus-visible:ring-violet-500/50" },
@@ -31,7 +28,6 @@ const ACCENTS: { tile: string; count: string; explore: string; hover: string; fo
   { tile: "bg-pink-500/10 text-pink-600 ring-pink-500/25 dark:text-pink-400", count: "text-pink-600 dark:text-pink-400", explore: "text-pink-600 dark:text-pink-400", hover: "hover:border-pink-500/45 hover:shadow-[0_18px_40px_-26px_rgba(236,72,153,0.75)]", focus: "focus-visible:ring-pink-500/50" },
 ]
 
-/** Icon matched against the category name so tiles never show a stale icon. */
 const ICON_MATCHES: Array<[RegExp, LucideIcon]> = [
   [/pizza/i, Pizza],
   [/side|appetizer/i, Sandwich],
@@ -72,8 +68,6 @@ export function PizzaCategories() {
     return failed ? "—" : "…"
   }
 
-  // Until the counts land we render the canonical list so the tiles (and their
-  // links) are never pointing at a category that doesn't exist.
   const tiles: CategoryRow[] =
     rows ?? MENU_CATEGORIES.map((category) => ({ category, count: null }))
 
