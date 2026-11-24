@@ -3,6 +3,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useLayoutEffect, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import {
   ArrowUpDown,
@@ -156,25 +157,58 @@ function DrawerAvatar({ user }: { user: AppUser }) {
   )
 }
 
-function NavLinks({ links, pathname, onNavigate }: { links: NavLink[]; pathname: string; onNavigate?: () => void }) {
+function DesktopNav({ links, pathname }: { links: NavLink[]; pathname: string }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const activeIndex = links.findIndex(({ href }) => isActivePath(pathname, href))
+  const [pill, setPill] = useState({ left: 0, width: 0, ready: false })
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const container = containerRef.current
+      const el = activeIndex >= 0 ? linkRefs.current[activeIndex] : null
+      if (!container || !el) {
+        setPill((p) => ({ ...p, ready: false }))
+        return
+      }
+      const cRect = container.getBoundingClientRect()
+      const eRect = el.getBoundingClientRect()
+      setPill({ left: eRect.left - cRect.left, width: eRect.width, ready: true })
+    }
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [activeIndex, links])
+
   return (
-    <>
-      {links.map(({ href, label }) => {
+    <div
+      ref={containerRef}
+      className="relative flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1.5">
+      {pill.ready ? (
+        <span
+          aria-hidden="true"
+          className="absolute top-1.5 bottom-1.5 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] shadow-[0_4px_14px_rgba(244,87,74,0.35)] transition-all duration-300 ease-out"
+          style={{ left: pill.left, width: pill.width }}
+        />
+      ) : null}
+      {links.map(({ href, label }, i) => {
         const active = isActivePath(pathname, href)
         return (
           <Link
             key={href}
             href={href}
-            onClick={onNavigate}
+            ref={(el) => {
+              linkRefs.current[i] = el
+            }}
             className={cn(
-              "relative inline-flex items-center rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-              active ? ACTIVE_PILL : IDLE_LINK
+              "relative z-10 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+              active ? "text-white" : "text-muted-foreground hover:text-foreground"
             )}>
             {label}
           </Link>
         )
       })}
-    </>
+    </div>
   )
 }
 
@@ -311,11 +345,11 @@ export function Navbar() {
           </span>
         </Link>
 
-        <nav
-          aria-label="Main"
-          className="hidden items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1.5 md:flex">
-          <NavLinks links={PUBLIC_NAV} pathname={pathname} />
-          {authed ? <NavLinks links={ROLE_NAV[authed.role]} pathname={pathname} /> : null}
+        <nav aria-label="Main" className="hidden md:block">
+          <DesktopNav
+            links={[...PUBLIC_NAV, ...(authed ? ROLE_NAV[authed.role] : [])]}
+            pathname={pathname}
+          />
         </nav>
 
         <div className="flex items-center justify-end gap-2">
