@@ -126,6 +126,9 @@
   html {
     @apply font-sans;
     }
+  button:not(:disabled) {
+    cursor: pointer;
+    }
 }
 
 @keyframes banner-fade-up {
