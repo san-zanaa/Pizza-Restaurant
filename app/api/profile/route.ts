@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { readJson } from "@/lib/api"
 import { serverApi } from "@/lib/server-api"
 
-/** Proxy GET/PATCH /api/profile to the backend. */
 
 export async function GET() {
   const { data, error, status } = await serverApi("/api/profile")

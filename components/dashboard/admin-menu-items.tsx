@@ -48,7 +48,6 @@ import {
 } from "@/components/dashboard/ui"
 import { MENU_CATEGORIES, MENU_STATUSES, primaryImage, type MenuItem } from "@/lib/types"
 
-/** Admin → Manage Menu Items: search, filter, review, status changes, delete. */
 export function AdminMenuItems() {
   const [items, setItems] = useState<MenuItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)

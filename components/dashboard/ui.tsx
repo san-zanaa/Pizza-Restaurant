@@ -1,14 +1,5 @@
 "use client"
 
-/**
- * Dashboard UI kit.
- *
- * Every primitive here is composed from shadcn/ui components
- * (`@/components/ui/*`) so the Customer / Vendor / Admin dashboards share one
- * consistent, accessible design system. The storefront keeps its own bespoke
- * kit in `ui-custom.tsx`.
- */
-
 import {
   AlertCircle,
   CheckCircle2,
@@ -28,10 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-
-/* ------------------------------------------------------------------ */
-/* Button                                                              */
-/* ------------------------------------------------------------------ */
 
 type BtnProps = Omit<
   React.ComponentProps<typeof Button>,
@@ -72,9 +59,6 @@ export function Btn({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Status badge                                                        */
-/* ------------------------------------------------------------------ */
 
 const STATUS_TONES: Record<string, string> = {
   Pending:
@@ -96,7 +80,6 @@ const STATUS_TONES: Record<string, string> = {
   premium:
     "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
   free: "border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400",
-  /* lowercase values straight from the database */
   pending:
     "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
   approved:
@@ -135,9 +118,6 @@ export function StatusBadge({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Page header                                                         */
-/* ------------------------------------------------------------------ */
 
 export function PageHeader({
   title,
@@ -165,9 +145,6 @@ export function PageHeader({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Stat card                                                           */
-/* ------------------------------------------------------------------ */
 
 const STAT_TONES = {
   ember: "bg-primary/10 text-primary",
@@ -218,9 +195,6 @@ export function StatCard({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Feedback                                                            */
-/* ------------------------------------------------------------------ */
 
 const ALERT_TONES = {
   error:
@@ -287,9 +261,6 @@ export function Loading({ label = "Loading…" }: { label?: string }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Table                                                               */
-/* ------------------------------------------------------------------ */
 
 export function TableShell({
   children,
@@ -315,9 +286,6 @@ export {
   TableRow as Tr,
 }
 
-/* ------------------------------------------------------------------ */
-/* Form field                                                          */
-/* ------------------------------------------------------------------ */
 
 export function Field({
   label,

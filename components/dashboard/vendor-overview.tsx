@@ -25,7 +25,6 @@ type Overview = {
   plan: string
 }
 
-/** Vendor overview: menu-item totals, order pipeline and current plan. */
 export function VendorOverview({ user }: { user: AppUser }) {
   const [data, setData] = useState<Overview | null>(null)
   const [error, setError] = useState<string | null>(null)

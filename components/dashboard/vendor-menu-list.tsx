@@ -45,14 +45,9 @@ function money(value: number) {
   return `৳${value.toFixed(0)}`
 }
 
-/** approved ⇄ inactive is the only transition a vendor may make themselves. */
 const canToggle = (item: MenuItem) =>
   item.status === "approved" || item.status === "inactive"
 
-/**
- * Vendor's own menu items — every status (pending / approved / rejected /
- * inactive) is visible to the vendor; only approved ones reach customers.
- */
 export function VendorMenuList() {
   const [items, setItems] = useState<MenuItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)

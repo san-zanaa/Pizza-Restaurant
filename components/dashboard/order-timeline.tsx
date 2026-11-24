@@ -17,7 +17,6 @@ function formatWhen(iso?: string) {
 
 type TimelineStep = { label: string; when?: string; active: boolean }
 
-/** Build the visible status timeline from the order's saved timestamps. */
 export function buildTimeline(order: Order): TimelineStep[] {
   const steps: TimelineStep[] = [
     { label: "Order placed", when: order.createdAt, active: true },
@@ -36,7 +35,6 @@ export function buildTimeline(order: Order): TimelineStep[] {
   return steps
 }
 
-/** Vertical status timeline — an optional nicety on the order details page. */
 export function OrderTimeline({ order }: { order: Order }) {
   const steps = buildTimeline(order)
   return (

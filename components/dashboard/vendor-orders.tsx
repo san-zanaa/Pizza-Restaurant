@@ -42,11 +42,6 @@ function formatDate(iso: string) {
       })
 }
 
-/**
- * Vendor → Customer Orders: every order placed against this vendor's items.
- * Only Pending orders can be accepted or rejected, and only once (the API
- * enforces both; the buttons disappear once decided).
- */
 export function VendorOrders() {
   const [orders, setOrders] = useState<Order[] | null>(null)
   const [error, setError] = useState<string | null>(null)

@@ -4,11 +4,7 @@ import { Image as ImageIcon, RefreshCw, TriangleAlert } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 
-/**
- * Route error boundary. Handles failed API requests (inside client
- * components too), invalid form submissions, unauthorized access, missing
- * records and similar failures.
- */
+
 export default function Error({
   error,
   reset,

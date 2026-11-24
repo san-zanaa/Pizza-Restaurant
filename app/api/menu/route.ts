@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { readJson } from "@/lib/api"
 import { serverApi } from "@/lib/server-api"
 
-/** Proxy GET/POST /api/menu to the backend (assignment-9-server). */
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.toString()

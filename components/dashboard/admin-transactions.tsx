@@ -31,7 +31,6 @@ function formatDate(iso: string) {
       })
 }
 
-/** Admin → Transactions: read-only ledger of verified Stripe payments. */
 export function AdminTransactions() {
   const [transactions, setTransactions] = useState<Transaction[] | null>(null)
   const [error, setError] = useState<string | null>(null)

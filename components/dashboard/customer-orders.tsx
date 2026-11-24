@@ -52,10 +52,7 @@ function formatDate(iso: string) {
       })
 }
 
-/**
- * Customer → My Orders: the signed-in customer's order pipeline. Pending
- * orders can be cancelled (once); everything else is read-only.
- */
+
 export function CustomerOrders() {
   const [orders, setOrders] = useState<Order[] | null>(null)
   const [error, setError] = useState<string | null>(null)

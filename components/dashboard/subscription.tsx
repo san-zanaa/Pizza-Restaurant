@@ -47,11 +47,7 @@ const PLANS = [
   },
 ] as const
 
-/**
- * Vendor subscription: the Free vs Premium comparison and the Stripe
- * Checkout upgrade flow. The upgrade itself only happens after a verified
- * Stripe payment confirmation (webhook / success page).
- */
+
 export function SubscriptionPage({ user }: { user: AppUser }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)

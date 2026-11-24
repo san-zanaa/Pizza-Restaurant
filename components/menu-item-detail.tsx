@@ -136,7 +136,6 @@ export function MenuItemDetail({
       <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
         <div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[activeImage] ?? ""}
               alt={item.itemName}
@@ -166,7 +165,6 @@ export function MenuItemDetail({
                       ? "border-[#f4574a]"
                       : "border-border opacity-70 hover:opacity-100"
                   }`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt="" className="size-full object-cover" />
                 </button>
               ))}

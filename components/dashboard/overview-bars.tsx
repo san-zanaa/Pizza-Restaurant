@@ -4,11 +4,7 @@ import type { LucideIcon } from "lucide-react"
 
 type BarSeries = { label: string; value: number }
 
-/**
- * Small inline bar chart (no charting library) — the "charts & graphs"
- * requirement of the dashboard UI spec. Values are normalized to the max so
- * bars are always visible; zero is a flat line.
- */
+
 export function OverviewBars({
   title,
   icon: Icon,

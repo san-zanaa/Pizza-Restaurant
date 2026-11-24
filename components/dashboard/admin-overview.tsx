@@ -24,7 +24,6 @@ type Overview = {
   totalTransactions: number
 }
 
-/** Admin overview: platform-wide totals. */
 export function AdminOverview({ user }: { user: AppUser }) {
   const [data, setData] = useState<Overview | null>(null)
   const [error, setError] = useState<string | null>(null)

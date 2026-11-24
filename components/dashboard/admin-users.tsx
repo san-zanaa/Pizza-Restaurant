@@ -47,7 +47,6 @@ function formatDate(iso?: string | null) {
       })
 }
 
-/** Admin → Manage Users: search, role filter, block / unblock. */
 export function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[] | null>(null)
   const [error, setError] = useState<string | null>(null)

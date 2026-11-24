@@ -2,10 +2,6 @@
 
 import { cn } from "@/lib/utils"
 
-/* ------------------------------------------------------------------ */
-/* Buttons                                                             */
-/* ------------------------------------------------------------------ */
-
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "outline" | "danger" | "ghost"
   size?: "sm" | "md"
@@ -37,9 +33,6 @@ export function Btn({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Status badges                                                       */
-/* ------------------------------------------------------------------ */
 
 const BADGE_TONES: Record<string, string> = {
   Pending:
@@ -59,7 +52,6 @@ const BADGE_TONES: Record<string, string> = {
   Inactive:
     "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300",
   Blocked: "border-rose-400/40 bg-rose-400/10 text-rose-600 dark:text-rose-400",
-  /* lowercase values straight from the database */
   pending:
     "border-amber-400/40 bg-amber-400/10 text-amber-600 dark:text-amber-300",
   approved:
@@ -96,9 +88,6 @@ export function StatusBadge({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Page header                                                         */
-/* ------------------------------------------------------------------ */
 
 export function PageHeader({
   title,
@@ -126,9 +115,6 @@ export function PageHeader({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Stat card                                                           */
-/* ------------------------------------------------------------------ */
 
 export function StatCard({
   label,
@@ -178,10 +164,6 @@ export function StatCard({
     </div>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Feedback                                                            */
-/* ------------------------------------------------------------------ */
 
 export function Alert({
   kind = "error",
@@ -245,9 +227,6 @@ export function Loading({ label = "Loading…" }: { label?: string }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Table                                                               */
-/* ------------------------------------------------------------------ */
 
 export function TableShell({
   children,
@@ -298,10 +277,6 @@ export function Td({
     </td>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Form field                                                          */
-/* ------------------------------------------------------------------ */
 
 export function Field({
   label,

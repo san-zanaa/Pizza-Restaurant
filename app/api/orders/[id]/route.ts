@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { readJson } from "@/lib/api"
 import { serverApi } from "@/lib/server-api"
 
-/** Proxy GET/PATCH/DELETE /api/orders/:id to the backend. */
 
 type Ctx = { params: Promise<{ id: string }> }
 

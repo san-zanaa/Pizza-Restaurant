@@ -28,8 +28,7 @@ import { authClient } from "@/lib/auth-client"
 import { passwordError } from "@/lib/password"
 
 type Mode = "signin" | "signup" | "forgot"
-/** Public registration only ever offers these two — admins are assigned in the database. */
-type RoleId = "customer" | "vendor"
+type RoleId = "customer" | "vendor" 
 type Status = "idle" | "error" | "submitting" | "success"
 type FieldName = "name" | "email" | "password"
 
@@ -501,7 +500,6 @@ export function AuthSection({
     return null
   }
 
-  /** After auth we always land on the page that matches the account's role. */
   const homeForRole = (nextRole?: RoleId) =>
     nextRole === "vendor" ? "/dashboard" : "/"
 
@@ -552,9 +550,6 @@ export function AuthSection({
           name: name.trim(),
           email: email.trim(),
           password,
-          // "Designate access role" — Customer or Vendor. The generated
-          // client type doesn't list the additional field, but the API
-          // passes through user input (sign-up.mjs → parseUserInput).
           ...({ role } as Record<string, unknown>),
         })
         if (res?.error) {

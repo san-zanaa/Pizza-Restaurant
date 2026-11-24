@@ -8,11 +8,7 @@ import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
 import { MenuItemCard } from "@/components/menu-item-card"
 import { MENU_CATEGORIES, type MenuItem } from "@/lib/types"
 
-/**
- * Public browse page: search by name, filter by category and by location.
- * The API only ever returns `approved` items, so rejected/pending dishes can
- * never leak here.
- */
+
 export function BrowseMenu() {
   const searchParams = useSearchParams()
   const [items, setItems] = useState<MenuItem[] | null>(null)

@@ -35,7 +35,6 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>
 }
 
-/** Admin nav: exactly the spec's list — no item editing or Settings entries. */
 const ADMIN_NAV: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/users", label: "Manage Users", icon: Users },
@@ -157,7 +156,6 @@ function SidebarBody({
 
       <NavLinks nav={nav} pathname={pathname} onNavigate={onNavigate} />
 
-      {/* Plan highlight for vendors */}
       {user.role === "vendor" ? (
         <Card className="gap-3 border-primary/20 bg-primary/5 p-4">
           <div className="flex items-center gap-2">
@@ -185,7 +183,6 @@ function SidebarBody({
         </Card>
       ) : null}
 
-      {/* User footer */}
       <div className="mt-auto flex flex-col gap-3 pt-2">
         <Card className="flex items-center gap-3 p-3">
           <Avatar size="sm">
@@ -222,10 +219,7 @@ function SidebarBody({
   )
 }
 
-/**
- * Role-based dashboard chrome: persistent sidebar on desktop, slide-over
- * drawer (opened from the dashboard top bar) on mobile.
- */
+
 export function DashboardChrome({
   user,
   children,
@@ -238,12 +232,10 @@ export function DashboardChrome({
 
   return (
     <div className="mx-auto flex max-w-[1440px] items-start gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      {/* Desktop sidebar */}
       <aside className="sticky top-24 hidden w-64 shrink-0 self-start rounded-xl border border-border bg-card p-4 shadow-sm lg:block">
         <SidebarBody user={user} pathname={pathname} />
       </aside>
 
-      {/* Mobile top bar */}
       <div className="sticky top-20 z-40 -mx-4 mb-4 flex w-full items-center justify-between border-b border-border bg-background/85 px-4 py-2.5 backdrop-blur-xl lg:hidden">
         <span className="text-[13px] font-bold tracking-wide text-foreground uppercase">
           {ROLE_LABEL[user.role]}
@@ -259,7 +251,6 @@ export function DashboardChrome({
         </Button>
       </div>
 
-      {/* Mobile drawer */}
       {open ? (
         <div
           className="fixed inset-0 z-50 lg:hidden"
@@ -294,7 +285,6 @@ export function DashboardChrome({
         </div>
       ) : null}
 
-      {/* Main content area */}
       <main className="min-w-0 flex-1 pb-16">{children}</main>
     </div>
   )

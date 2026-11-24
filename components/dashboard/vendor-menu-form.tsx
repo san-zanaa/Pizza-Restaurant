@@ -73,9 +73,6 @@ function validate(state: FormState, imageUrl: string, requireImage: boolean) {
   return null
 }
 
-/* ------------------------------------------------------------------ */
-/* Image link input                                                    */
-/* ------------------------------------------------------------------ */
 
 function ImageUploader({
   imageUrl,
@@ -183,7 +180,6 @@ function ImageUploader({
 
       {imageUrl ? (
         <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt="Item preview"
@@ -224,10 +220,6 @@ function ImageUploader({
     </div>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Create / edit form                                                  */
-/* ------------------------------------------------------------------ */
 
 export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
   const editing = Boolean(item)
