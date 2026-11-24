@@ -4,6 +4,7 @@ import Link from "next/link"
 import { MapPin, Store } from "lucide-react"
 import { primaryImage, type MenuItem } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { FavoriteToggle } from "@/components/favorite-toggle"
 
 export function MenuItemCard({
   item,
@@ -44,6 +45,7 @@ export function MenuItemCard({
             ৳{item.price}
           </span>
         </div>
+        <FavoriteToggle itemId={item._id} />
 
         <p className="mt-2 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
           {item.description}

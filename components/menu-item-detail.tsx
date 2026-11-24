@@ -22,6 +22,7 @@ import {
   Field,
   inputClass,
 } from "@/components/dashboard/ui-custom"
+import { FavoriteToggle } from "@/components/favorite-toggle"
 import { primaryImage, type AppUser, type MenuItem } from "@/lib/types"
 
 export function MenuItemDetail({
@@ -187,6 +188,7 @@ export function MenuItemDetail({
             <span className="rounded-full bg-[#f4574a]/10 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#f4574a] uppercase">
               {item.category}
             </span>
+            <FavoriteToggle itemId={item._id} />
           </div>
 
           <p className="mt-5 text-[14.5px] leading-relaxed whitespace-pre-wrap text-foreground/90">
