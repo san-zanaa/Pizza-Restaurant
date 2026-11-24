@@ -32,14 +32,16 @@ export async function serverApi<T>(
           typeof body?.error === "string"
             ? body.error
             : `Request failed (${res.status}).`,
+        status: res.status,
       }
     }
-    return { data: body as T, error: null }
+    return { data: body as T, error: null, status: res.status }
   } catch (err) {
     return {
       data: null,
       error:
         err instanceof Error ? err.message : "Network error — please retry.",
+      status: 0,
     }
   }
 }

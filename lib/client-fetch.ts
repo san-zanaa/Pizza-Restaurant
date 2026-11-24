@@ -1,5 +1,9 @@
 
-export type ApiResult<T> = { data: T | null; error: string | null }
+export type ApiResult<T> = {
+  data: T | null
+  error: string | null
+  status: number
+}
 
 const BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -52,9 +56,10 @@ async function parse<T>(res: Response): Promise<ApiResult<T>> {
         typeof body?.error === "string"
           ? body.error
           : `Request failed (${res.status}).`,
+      status: res.status,
     }
   }
-  return { data: body as T, error: null }
+  return { data: body as T, error: null, status: res.status }
 }
 
 async function request<T>(
@@ -79,6 +84,7 @@ async function request<T>(
     return {
       data: null,
       error: "Network error — check your connection and retry.",
+      status: 0,
     }
   }
 }
