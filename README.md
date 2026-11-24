@@ -1,4 +1,4 @@
-# PizzaHub — Client (Next.js)
+# PizzaHub 
 
 Frontend for the PizzaHub platform — a pizza ordering & delivery platform.
 Customers discover local pizzerias, browse menus, place orders; vendors run a
@@ -6,7 +6,7 @@ dashboard for their restaurant; admins manage users and review content.
 
 ## Project Name
 
-PizzaHub Client
+PizzaHub 
 
 ## Description
 
