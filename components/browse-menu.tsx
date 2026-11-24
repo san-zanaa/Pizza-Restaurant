@@ -24,12 +24,14 @@ export function BrowseMenu() {
   const [location, setLocation] = useState(
     () => searchParams.get("location") ?? ""
   )
+  const [sort, setSort] = useState(() => searchParams.get("sort") ?? "")
 
   useEffect(() => {
     const params = new URLSearchParams()
     if (query.trim()) params.set("q", query.trim())
     if (category) params.set("category", category)
     if (location.trim()) params.set("location", location.trim())
+    if (sort) params.set("sort", sort)
 
     let alive = true
     const timer = window.setTimeout(() => {
@@ -46,7 +48,7 @@ export function BrowseMenu() {
       alive = false
       window.clearTimeout(timer)
     }
-  }, [query, category, location])
+  }, [query, category, location, sort])
 
   const hasFilters = Boolean(query || category || location)
 
@@ -90,6 +92,25 @@ export function BrowseMenu() {
               className="h-11 w-full rounded-full border border-input bg-background pr-4 pl-10 text-sm text-foreground transition outline-none placeholder:text-muted-foreground/60 focus:border-[#f4574a]/60 focus:ring-4 focus:ring-[#f4574a]/12"
             />
           </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <label
+            htmlFor="browse-sort"
+            className="text-[13px] font-bold text-muted-foreground">
+            Sort
+          </label>
+          <select
+            id="browse-sort"
+            aria-label="Sort menu items"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="h-11 min-w-44 rounded-full border border-input bg-background px-4 text-sm text-foreground transition outline-none focus:border-[#f4574a]/60 focus:ring-4 focus:ring-[#f4574a]/12"
+          >
+            <option value="">Recommended</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+          </select>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-1.5">
