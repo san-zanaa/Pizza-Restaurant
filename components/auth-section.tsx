@@ -867,7 +867,14 @@ export function AuthSection({
             <div
               role="group"
               aria-label="Designate access role"
-              className="mt-2.5 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/10 bg-black/30 p-1.5">
+              className="relative mt-2.5 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-black/40 p-1">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute inset-y-1 left-1 w-[calc(50%_-_6px)] rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] shadow-[0_8px_20px_-10px_rgba(244,87,74,0.95)] transition-transform duration-500 ease-out motion-reduce:transition-none",
+                  role === "vendor" && "translate-x-[calc(100%_+_4px)]"
+                )}
+              />
               {ROLES.map((item) => {
                 const active = item.id === role
                 const Icon = item.icon
@@ -878,10 +885,8 @@ export function AuthSection({
                     aria-pressed={active}
                     onClick={() => setRole(item.id)}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl px-1.5 py-2.5 text-[12.5px] font-bold transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none cursor-pointer",
-                      active
-                        ? "bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ring-1 ring-white/10"
-                        : "text-white/45 hover:bg-white/[0.04] hover:text-white/80"
+                      "relative z-10 flex items-center justify-center gap-1.5 rounded-full px-1.5 py-2.5 text-[12.5px] font-bold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#ff9e2c]/60 focus-visible:outline-none cursor-pointer",
+                      active ? "text-white" : "text-white/45 hover:text-white/75"
                     )}>
                     <Icon
                       aria-hidden="true"
