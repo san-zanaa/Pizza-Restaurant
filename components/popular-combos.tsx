@@ -118,12 +118,12 @@ export function PopularCombos() {
                   key={`${a._id}-${b._id}`}
                   style={{ animationDelay: `${index * 90}ms` }}
                   className={cn(
-                    "standard-reveal group flex overflow-hidden rounded-3xl border border-border bg-card shadow-sm",
+                    "standard-reveal group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm",
                     "transition-all duration-300 hover:-translate-y-1 hover:border-[#f4574a]/40 hover:shadow-[0_24px_50px_-30px_rgba(244,87,74,0.6)]",
                     gridVisible && "is-in"
                   )}>
-                  <div className="grid w-2/5 grid-rows-2 gap-1 bg-muted sm:w-1/3">
-                    <div className="relative overflow-hidden">
+                  <div className="grid grid-cols-2 gap-1 bg-muted">
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       <img
                         src={primaryImage(a)}
                         alt={a.itemName}
@@ -131,7 +131,7 @@ export function PopularCombos() {
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
-                    <div className="relative overflow-hidden">
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       <img
                         src={primaryImage(b)}
                         alt={b.itemName}
