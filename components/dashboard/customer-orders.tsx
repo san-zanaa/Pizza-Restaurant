@@ -38,6 +38,7 @@ import {
   THead,
   Tr,
 } from "@/components/dashboard/ui"
+import { OrderTimeline } from "@/components/dashboard/order-timeline"
 import type { Order } from "@/lib/types"
 
 function formatDate(iso: string) {
@@ -274,6 +275,7 @@ export function CustomerOrders() {
                           </p>
                         </div>
                       </div>
+                      <OrderTimeline order={order} />
                     </Td>
                   </Tr>
                 ) : null}
