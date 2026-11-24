@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 import { SuccessPage } from "@/components/payment-success"
 
 export const metadata: Metadata = { title: "Payment Success · PizzaHub" }
@@ -10,5 +11,6 @@ export default async function PaymentSuccessRoute({ searchParams }: { searchPara
   const { session_id: sessionId } = await searchParams
   const { getSessionUser } = await import("@/lib/session")
   const user = await getSessionUser()
+  if (!user) redirect("/sign-in")
   return <SuccessPage sessionId={sessionId} user={user} />
 }

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { getSessionUser } from "@/lib/session"
 import { serverApi } from "@/lib/server-api"
 import { MenuItemDetail } from "@/components/menu-item-detail"
@@ -16,5 +17,8 @@ export async function generateMetadata({ params }: Params) {
 export default async function MenuItemPage({ params }: Params) {
   const { id } = await params
   const user = await getSessionUser()
+  if (!user) {
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent(`/menu/${id}`)}`)
+  }
   return <MenuItemDetail id={id} user={user} />
 }
