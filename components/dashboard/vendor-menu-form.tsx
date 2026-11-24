@@ -8,9 +8,10 @@ import {
   Eye,
   LoaderCircle,
   Trash2,
+  Upload,
   UtensilsCrossed,
 } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "react-toastify"
 import { apiSend } from "@/lib/client-fetch"
 import {
@@ -85,6 +86,54 @@ function ImageUploader({
   setImageUrl: (value: string) => void
   error?: string
 }) {
+  const imgbbKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const uploadWithImgbb = async (file: File) => {
+    setUploading(true)
+    setUploadError(null)
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () =>
+          resolve(String(reader.result ?? "").split(",")[1] ?? "")
+        reader.onerror = () =>
+          reject(new Error("The image could not be read."))
+        reader.readAsDataURL(file)
+      })
+
+      const form = new FormData()
+      form.append("key", imgbbKey ?? "")
+      form.append("image", base64)
+
+      const res = await fetch("https://api.imgbb.com/1/upload", {
+        method: "POST",
+        body: form,
+      })
+      const data = (await res.json().catch(() => null)) as {
+        success?: boolean
+        data?: { url?: string }
+      } | null
+
+      if (!res.ok || data?.success !== true || !data?.data?.url) {
+        throw new Error(
+          "ImgBB upload failed. Please retry, or paste an image link instead."
+        )
+      }
+
+      setImageUrl(data.data.url)
+      toast.success("Image uploaded to ImgBB.")
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "ImgBB upload failed."
+      )
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="space-y-3">
       <input
@@ -95,6 +144,43 @@ function ImageUploader({
         placeholder="https://example.com/item-image.jpg"
         aria-label="Item image link"
       />
+
+      {imgbbKey ? (
+        <div className="flex items-center justify-center gap-3">
+          <Btn
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {uploading ? (
+              <LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" />
+            ) : (
+              <Upload className="size-3.5" />
+            )}
+            {uploading ? "Uploading…" : "Upload with ImgBB"}
+          </Btn>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            className="hidden"
+            aria-label="Upload item image with ImgBB"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) void uploadWithImgbb(file)
+              event.target.value = ""
+            }}
+          />
+        </div>
+      ) : null}
+      {uploadError ? (
+        <p className="text-[12.5px] font-medium text-rose-500 dark:text-rose-400">
+          {uploadError}
+        </p>
+      ) : null}
+
       {imageUrl ? (
         <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
