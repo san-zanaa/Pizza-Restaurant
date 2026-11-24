@@ -1,10 +1,9 @@
-import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { serverApi } from "@/lib/server-api"
 
 /** Proxy POST /api/subscription/checkout to the backend. */
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   const { data, error, status } = await serverApi("/api/subscription/checkout", {
     method: "POST",
   })

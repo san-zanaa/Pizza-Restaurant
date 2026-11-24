@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 const STORAGE_PREFIX = "pizzahub-favorites"
 
@@ -33,10 +33,6 @@ function writeFavorites(userId: string, ids: string[]) {
  */
 export function useFavorites(userId: string) {
   const [favorites, setFavorites] = useState<string[]>(() => readFavorites(userId))
-
-  useEffect(() => {
-    setFavorites(readFavorites(userId))
-  }, [userId])
 
   const toggle = useCallback(
     (itemId: string) => {
