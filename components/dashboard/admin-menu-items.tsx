@@ -269,9 +269,9 @@ export function AdminMenuItems() {
                     )}
                     <AlertDialog
                       open={confirmId === item._id}
-                      onOpenChange={(open) => {
-                        if (!open) setConfirmId(null)
-                      }}
+                      onOpenChange={(open) =>
+                        setConfirmId(open ? item._id : null)
+                      }
                     >
                       <AlertDialogTrigger
                         render={

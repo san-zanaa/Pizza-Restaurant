@@ -177,9 +177,9 @@ export function CustomerOrders() {
                       {order.status === "pending" ? (
                         <AlertDialog
                           open={confirmId === order._id}
-                          onOpenChange={(open) => {
-                            if (!open) setConfirmId(null)
-                          }}
+                          onOpenChange={(open) =>
+                            setConfirmId(open ? order._id : null)
+                          }
                         >
                           <AlertDialogTrigger
                             render={
