@@ -16,6 +16,7 @@ import {
 import { Menu } from "@base-ui/react/menu"
 import { cn } from "@/lib/utils"
 import { authClient } from "@/lib/auth-client"
+import { clearAuthToken } from "@/lib/client-fetch"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { AppUser, Role } from "@/lib/types"
 
@@ -74,6 +75,7 @@ function ProfileMenu({ user, pathname }: { user: AppUser; pathname: string }) {
   const active = PROFILE_LINKS.find((item) => isActivePath(pathname, item.href))
 
   const signOut = async () => {
+    clearAuthToken()
     await authClient.signOut()
     router.push("/")
     router.refresh()
@@ -262,6 +264,7 @@ function MobileMenu({
                 <Menu.Separator className="my-1 h-px bg-border" />
                 <Menu.Item
                   onClick={async () => {
+                    clearAuthToken()
                     await authClient.signOut()
                     router.push("/")
                     router.refresh()

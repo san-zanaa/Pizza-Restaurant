@@ -14,6 +14,7 @@ import {
   inputClass,
 } from "@/components/dashboard/ui"
 import { authClient } from "@/lib/auth-client"
+import { clearAuthToken } from "@/lib/client-fetch"
 import type { AppUser } from "@/lib/types"
 
 
@@ -81,6 +82,7 @@ export function SettingsForm({ user }: { user: AppUser }) {
           <button
             type="button"
             onClick={async () => {
+              clearAuthToken()
               await authClient.signOut()
               router.push("/sign-in")
               router.refresh()

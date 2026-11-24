@@ -72,8 +72,13 @@ async function request<T>(
   try {
     const res = await fetch(apiUrl(path), { ...init, headers, cache: "no-store" })
 
-    if (res.status === 401 && retry && (await fetchToken(true))) {
-      return request<T>(path, init, false)
+    // A cached token can belong to a previously signed-in account (or a role
+    // that just changed) — drop it and mint a fresh one, then retry once.
+    if ((res.status === 401 || res.status === 403) && retry) {
+      clearAuthToken()
+      if (await fetchToken(true)) {
+        return request<T>(path, init, false)
+      }
     }
 
     return await parse<T>(res)

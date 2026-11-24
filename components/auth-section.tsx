@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useInView } from "@/hooks/use-in-view"
 import { authClient } from "@/lib/auth-client"
+import { clearAuthToken } from "@/lib/client-fetch"
 import { passwordError } from "@/lib/password"
 
 type Mode = "signin" | "signup" | "forgot"
@@ -518,6 +519,8 @@ export function AuthSection({
     setFailedField(null)
 
     try {
+      // Never reuse a JWT minted for a previously signed-in account.
+      clearAuthToken()
       if (mode === "signin") {
         const res = await authClient.signIn.email({
           email: email.trim(),
@@ -614,6 +617,7 @@ export function AuthSection({
     setStatus("idle")
     setMessage("")
     try {
+      clearAuthToken()
       const res = await authClient.signIn.social({ provider, callbackURL: "/" })
       if (res?.error) {
         const code = (res.error as { code?: string }).code
