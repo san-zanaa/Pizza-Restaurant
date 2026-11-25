@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import {
   Calendar,
@@ -130,10 +131,11 @@ export function VendorOrders() {
                   </Td>
                   <Td>
                     <div className="flex items-center gap-2.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={order.itemImage}
                         alt={order.itemName}
+                        width={40}
+                        height={40}
                         className="size-10 shrink-0 rounded-lg border border-border object-cover"
                       />
                       <div className="min-w-0">

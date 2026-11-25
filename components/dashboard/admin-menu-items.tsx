@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import {
   BadgeCheck,
   Check,
@@ -46,7 +47,12 @@ import {
   THead,
   Tr,
 } from "@/components/dashboard/ui"
-import { MENU_CATEGORIES, MENU_STATUSES, primaryImage, type MenuItem } from "@/lib/types"
+import {
+  MENU_CATEGORIES,
+  MENU_STATUSES,
+  primaryImage,
+  type MenuItem,
+} from "@/lib/types"
 
 export function AdminMenuItems() {
   const [items, setItems] = useState<MenuItem[] | null>(null)
@@ -188,9 +194,11 @@ export function AdminMenuItems() {
               <Tr key={item._id}>
                 <Td>
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={primaryImage(item)}
                       alt={item.itemName}
+                      width={44}
+                      height={44}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
                     <div className="min-w-0">

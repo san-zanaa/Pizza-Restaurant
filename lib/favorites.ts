@@ -13,7 +13,9 @@ function readFavorites(userId: string): string[] {
     const raw = window.localStorage.getItem(keyFor(userId))
     if (!raw) return []
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.filter((id) => typeof id === "string") : []
+    return Array.isArray(parsed)
+      ? parsed.filter((id) => typeof id === "string")
+      : []
   } catch {
     return []
   }
@@ -22,17 +24,13 @@ function readFavorites(userId: string): string[] {
 function writeFavorites(userId: string, ids: string[]) {
   try {
     window.localStorage.setItem(keyFor(userId), JSON.stringify(ids))
-  } catch {
-    /* storage may be unavailable — favorites are a convenience */
-  }
+  } catch {}
 }
 
-/**
- * Favorites/wishlist stored in localStorage per signed-in user.
- * `toggle` flips an item id; `isFavorite` reads the current set.
- */
 export function useFavorites(userId: string) {
-  const [favorites, setFavorites] = useState<string[]>(() => readFavorites(userId))
+  const [favorites, setFavorites] = useState<string[]>(() =>
+    readFavorites(userId)
+  )
 
   const toggle = useCallback(
     (itemId: string) => {
@@ -47,7 +45,10 @@ export function useFavorites(userId: string) {
     [userId]
   )
 
-  const isFavorite = useCallback((itemId: string) => favorites.includes(itemId), [favorites])
+  const isFavorite = useCallback(
+    (itemId: string) => favorites.includes(itemId),
+    [favorites]
+  )
 
   return { favorites, isFavorite, toggle }
 }

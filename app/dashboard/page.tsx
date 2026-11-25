@@ -5,7 +5,7 @@ import { VendorOverview } from "@/components/dashboard/vendor-overview"
 
 export default async function DashboardPage() {
   const user = await getSessionUser()
-  if (!user) return null // the layout already redirected
+  if (!user) return null
 
   if (user.role === "admin") return <AdminOverview user={user} />
   if (user.role === "vendor") return <VendorOverview user={user} />

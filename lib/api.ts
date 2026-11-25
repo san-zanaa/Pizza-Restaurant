@@ -5,7 +5,6 @@ export function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
 }
 
-/** JSON success response used by every API route. */
 export function jsonOk<T>(data: T, status = 200) {
   return NextResponse.json(data, { status })
 }

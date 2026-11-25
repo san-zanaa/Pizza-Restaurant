@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -16,12 +17,7 @@ import {
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
-import {
-  Alert,
-  Btn,
-  Field,
-  inputClass,
-} from "@/components/dashboard/ui-custom"
+import { Alert, Btn, Field, inputClass } from "@/components/dashboard/ui-custom"
 import { FavoriteToggle } from "@/components/favorite-toggle"
 import { primaryImage, type AppUser, type MenuItem } from "@/lib/types"
 
@@ -92,7 +88,8 @@ export function MenuItemDetail({
         </p>
         <Link
           href="/menu"
-          className="mt-6 inline-flex h-10 items-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110">
+          className="mt-6 inline-flex h-10 items-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110"
+        >
           Back to Browse Menu
         </Link>
       </div>
@@ -125,7 +122,8 @@ export function MenuItemDetail({
     <div className="mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
       <nav
         aria-label="Breadcrumb"
-        className="mb-5 text-[12.5px] font-semibold text-muted-foreground">
+        className="mb-5 text-[12.5px] font-semibold text-muted-foreground"
+      >
         <Link href="/menu" className="transition hover:text-[#f4574a]">
           Browse Menu
         </Link>
@@ -136,9 +134,11 @@ export function MenuItemDetail({
       <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
         <div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-            <img
+            <Image
               src={images[activeImage] ?? ""}
               alt={item.itemName}
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
               className="size-full object-cover"
             />
             <span className="absolute top-4 left-4 rounded-full bg-black/55 px-3 py-1 text-[11px] font-extrabold tracking-wider text-white uppercase backdrop-blur">
@@ -164,8 +164,15 @@ export function MenuItemDetail({
                     index === activeImage
                       ? "border-[#f4574a]"
                       : "border-border opacity-70 hover:opacity-100"
-                  }`}>
-                  <img src={src} alt="" className="size-full object-cover" />
+                  }`}
+                >
+                  <Image
+                    src={src}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="size-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -217,8 +224,13 @@ export function MenuItemDetail({
               <Btn
                 onClick={startOrdering}
                 disabled={!orderable}
-                className="h-12 w-full text-[15px] sm:w-auto sm:px-10">
-                {!user ? <Lock className="size-5" /> : <Pizza className="size-5" />}
+                className="h-12 w-full text-[15px] sm:w-auto sm:px-10"
+              >
+                {!user ? (
+                  <Lock className="size-5" />
+                ) : (
+                  <Pizza className="size-5" />
+                )}
                 {!user
                   ? "Sign in to Order"
                   : orderable
@@ -343,7 +355,8 @@ function OrderForm({
         <div className="mt-5 flex flex-wrap gap-2">
           <Link
             href="/dashboard/orders"
-            className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110">
+            className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] px-5 text-sm font-semibold text-white transition hover:brightness-110"
+          >
             <Check className="size-4" />
             View my orders
           </Link>
@@ -359,7 +372,8 @@ function OrderForm({
     <form
       onSubmit={submit}
       noValidate
-      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6"
+    >
       <p className="text-[15px] font-extrabold text-foreground">
         Place your order
       </p>
@@ -368,13 +382,13 @@ function OrderForm({
       </p>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <DetectedChip label="Customer" value={user?.email || "Sign in required"} />
+        <DetectedChip
+          label="Customer"
+          value={user?.email || "Sign in required"}
+        />
         <DetectedChip label="Vendor" value={item.vendorName || "—"} />
         <DetectedChip label="Item" value={item.itemName} />
-        <DetectedChip
-          label="Delivery"
-          value={deliveryDate || "Pick a date"}
-        />
+        <DetectedChip label="Delivery" value={deliveryDate || "Pick a date"} />
       </div>
 
       {error ? (
@@ -408,7 +422,8 @@ function OrderForm({
         <Field
           label="Additional Message / Special Instructions"
           htmlFor="order-message"
-          hint="Optional — allergies, extra toppings, delivery notes…">
+          hint="Optional — allergies, extra toppings, delivery notes…"
+        >
           <textarea
             id="order-message"
             rows={2}

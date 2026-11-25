@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -73,7 +74,6 @@ function validate(state: FormState, imageUrl: string, requireImage: boolean) {
   return null
 }
 
-
 function ImageUploader({
   imageUrl,
   setImageUrl,
@@ -96,8 +96,7 @@ function ImageUploader({
         const reader = new FileReader()
         reader.onload = () =>
           resolve(String(reader.result ?? "").split(",")[1] ?? "")
-        reader.onerror = () =>
-          reject(new Error("The image could not be read."))
+        reader.onerror = () => reject(new Error("The image could not be read."))
         reader.readAsDataURL(file)
       })
 
@@ -180,12 +179,14 @@ function ImageUploader({
 
       {imageUrl ? (
         <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted/30 p-3">
-          <img
+          <Image
             src={imageUrl}
             alt="Item preview"
+            width={96}
+            height={96}
             className="size-24 rounded-xl border border-border object-cover"
             onError={(event) => {
-              ;(event.currentTarget as HTMLImageElement).style.opacity = "0.4"
+              event.currentTarget.style.opacity = "0.4"
             }}
           />
           <div className="min-w-0 flex-1">
@@ -224,7 +225,9 @@ function ImageUploader({
 export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
   const editing = Boolean(item)
   const [state, setState] = useState<FormState>(item ? toState(item) : EMPTY)
-  const [imageUrl, setImageUrl] = useState(() => (item ? primaryImage(item) : ""))
+  const [imageUrl, setImageUrl] = useState(() =>
+    item ? primaryImage(item) : ""
+  )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
@@ -293,7 +296,8 @@ export function VendorMenuItemForm({ item }: { item?: MenuItem }) {
                     : item!.status === "rejected"
                       ? "border-rose-400/40 bg-rose-400/10 text-rose-600 dark:text-rose-300"
                       : "border-slate-400/40 bg-slate-400/10 text-slate-500 dark:text-slate-300"
-              }`}>
+              }`}
+            >
               {item!.status === "approved"
                 ? "Live"
                 : item!.status === "inactive"

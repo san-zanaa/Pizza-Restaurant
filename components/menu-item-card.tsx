@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Store } from "lucide-react"
 import { primaryImage, type MenuItem } from "@/lib/types"
@@ -22,12 +23,14 @@ export function MenuItemCard({
         "standard-reveal group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm",
         "transition-all duration-300 hover:-translate-y-1 hover:border-[#f4574a]/40 hover:shadow-[0_24px_50px_-30px_rgba(244,87,74,0.6)]",
         visible && "is-in"
-      )}>
+      )}
+    >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img
+        <Image
           src={primaryImage(item)}
           alt={item.itemName}
-          loading="lazy"
+          fill
+          sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute top-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-[10.5px] font-extrabold tracking-wider text-white uppercase backdrop-blur">
@@ -57,13 +60,16 @@ export function MenuItemCard({
           </span>
           <span className="flex min-w-0 items-center gap-1.5">
             <Store className="size-3.5 shrink-0 text-[#f4574a]" />
-            <span className="truncate">{item.vendorName || "PizzaHub vendor"}</span>
+            <span className="truncate">
+              {item.vendorName || "PizzaHub vendor"}
+            </span>
           </span>
         </div>
 
         <Link
           href={`/menu/${item._id}`}
-          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] text-[13px] font-bold text-white transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-[#f4574a]/50 focus-visible:outline-none">
+          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] text-[13px] font-bold text-white transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-[#f4574a]/50 focus-visible:outline-none"
+        >
           View Details
         </Link>
       </div>

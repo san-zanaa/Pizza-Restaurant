@@ -15,7 +15,6 @@ type Overview = {
   cancelledOrders: number
 }
 
-/** Customer overview: totals across the order pipeline. */
 export function CustomerOverview({ user }: { user: AppUser }) {
   const [data, setData] = useState<Overview | null>(null)
   const [error, setError] = useState<string | null>(null)

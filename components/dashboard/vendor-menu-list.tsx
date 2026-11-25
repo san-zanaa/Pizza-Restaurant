@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import {
   ClipboardList,
@@ -154,9 +155,11 @@ export function VendorMenuList() {
               <Tr key={item._id}>
                 <Td>
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={primaryImage(item)}
                       alt={item.itemName}
+                      width={44}
+                      height={44}
                       className="size-11 shrink-0 rounded-lg border border-border object-cover"
                     />
                     <div className="min-w-0">
@@ -190,7 +193,11 @@ export function VendorMenuList() {
                       aria-label={`${item.status === "approved" ? "Hide" : "Show"} ${item.itemName}`}
                     />
                     <span className="text-xs text-muted-foreground">
-                      {item.status === "approved" ? "On" : item.status === "inactive" ? "Off" : "—"}
+                      {item.status === "approved"
+                        ? "On"
+                        : item.status === "inactive"
+                          ? "Off"
+                          : "—"}
                     </span>
                   </div>
                 </Td>

@@ -16,7 +16,6 @@ export default async function MenuItemDetailPage({ params }: Params) {
   const { data } = await serverApi<{ item: MenuItem }>(`/api/menu/${id}`)
   const item = data?.item
 
-  // Ownership is verified server-side too — this just keeps the 404 tidy.
   if (!item || item.vendorId !== user.id) notFound()
 
   return (
