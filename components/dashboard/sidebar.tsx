@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 import {
   ClipboardList,
   Crown,
@@ -126,6 +127,7 @@ function SidebarBody({
   const signOut = async () => {
     clearAuthToken()
     await authClient.signOut()
+    toast.info("You've been signed out.")
     router.push("/")
     router.refresh()
   }

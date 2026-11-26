@@ -18,6 +18,7 @@ import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import { Alert, Btn, Field, inputClass } from "@/components/dashboard/ui-custom"
+import { DemoCheckout } from "@/components/demo-checkout"
 import { FavoriteToggle } from "@/components/favorite-toggle"
 import { primaryImage, type AppUser, type MenuItem } from "@/lib/types"
 
@@ -296,8 +297,11 @@ function OrderForm({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
 
-  const submit = async (event: React.FormEvent) => {
+  /** Validates the details, then hands off to the demo checkout. */
+  const submit = (event: React.FormEvent) => {
     event.preventDefault()
     if (submitting) return
 
@@ -314,11 +318,19 @@ function OrderForm({
       return
     }
 
-    setSubmitting(true)
     setError(null)
+    setPayError(null)
+    setCheckoutOpen(true)
+  }
 
-    const { error: err } = await apiSend<{ order: { _id: string } }>(
-      "/api/orders",
+  /** Creates a Stripe Checkout session and redirects to Stripe. */
+  const confirmPayment = async () => {
+    if (submitting) return
+    setSubmitting(true)
+    setPayError(null)
+
+    const { data, error: err } = await apiSend<{ url: string; sessionId: string }>(
+      "/api/orders/checkout",
       "POST",
       {
         itemId: item._id,
@@ -328,18 +340,14 @@ function OrderForm({
       }
     )
 
-    setSubmitting(false)
-
-    if (err) {
-      setError(err)
-      toast.error(err)
+    if (err || !data?.url) {
+      setSubmitting(false)
+      setPayError(err || "Couldn't start checkout. Please try again.")
+      toast.error(err || "Couldn't start checkout.")
       return
     }
 
-    setSuccess(
-      "Order placed! It's pending — the vendor will accept or reject it shortly."
-    )
-    toast.success("Order placed successfully.")
+    window.location.assign(data.url)
   }
 
   if (success) {
@@ -369,11 +377,12 @@ function OrderForm({
   }
 
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6"
-    >
+    <>
+      <form
+        onSubmit={submit}
+        noValidate
+        className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6"
+      >
       <p className="text-[15px] font-extrabold text-foreground">
         Place your order
       </p>
@@ -449,7 +458,32 @@ function OrderForm({
           Cancel
         </Btn>
       </div>
-    </form>
+      </form>
+
+      <DemoCheckout
+        open={checkoutOpen}
+        paying={submitting}
+        error={payError}
+        lines={[
+          {
+            image: primaryImage(item),
+            name: item.itemName,
+            vendor: item.vendorName || "PizzaHub vendor",
+            deliveryLabel: deliveryDate
+              ? `Delivery ${deliveryDate}`
+              : undefined,
+            amount: item.price,
+          },
+        ]}
+        subtotal={item.price}
+        onConfirm={confirmPayment}
+        onBack={() => {
+          if (submitting) return
+          setCheckoutOpen(false)
+          setPayError(null)
+        }}
+      />
+    </>
   )
 }
 

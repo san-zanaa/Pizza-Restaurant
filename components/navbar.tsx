@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useLayoutEffect, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 import {
   ArrowUpDown,
   Check,
@@ -78,6 +79,7 @@ function ProfileMenu({ user, pathname }: { user: AppUser; pathname: string }) {
   const signOut = async () => {
     clearAuthToken()
     await authClient.signOut()
+    toast.info("You've been signed out.")
     router.push("/")
     router.refresh()
   }
@@ -300,6 +302,7 @@ function MobileMenu({
                   onClick={async () => {
                     clearAuthToken()
                     await authClient.signOut()
+                    toast.info("You've been signed out.")
                     router.push("/")
                     router.refresh()
                   }}

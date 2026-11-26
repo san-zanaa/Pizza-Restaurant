@@ -17,6 +17,7 @@ import { useEffect, useState } from "react"
 import { apiGet, apiSend } from "@/lib/client-fetch"
 import { authClient } from "@/lib/auth-client"
 import { EmptyState, Loading } from "@/components/dashboard/ui-custom"
+import { DemoCheckout } from "@/components/demo-checkout"
 import { useInView } from "@/hooks/use-in-view"
 import { cn } from "@/lib/utils"
 import { primaryImage, type AppUser, type MenuItem } from "@/lib/types"
@@ -41,6 +42,53 @@ export function PopularCombos() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
+
+  const today = new Date().toISOString().slice(0, 10)
+
+  /** Validates the combo details, then hands off to the demo checkout. */
+  const validateCombo = () => {
+    if (!deliveryDate) {
+      setFormError("Choose a delivery date.")
+      return false
+    }
+    if (deliveryDate < today) {
+      setFormError("Delivery date can't be in the past.")
+      return false
+    }
+    if (deliveryAddress.trim().length < 5) {
+      setFormError("Enter a delivery address (at least 5 characters).")
+      return false
+    }
+    setFormError(null)
+    setPayError(null)
+    return true
+  }
+
+  /** Creates a Stripe Checkout session for the combo and redirects to Stripe. */
+  const confirmComboPayment = async () => {
+    if (!ordering || submitting) return
+    setSubmitting(true)
+    setPayError(null)
+    const { data, error: err } = await apiSend<{ url: string; sessionId: string }>(
+      "/api/orders/checkout",
+      "POST",
+      {
+        itemIds: ordering.items.map((i) => i._id),
+        deliveryDate,
+        deliveryAddress: deliveryAddress.trim(),
+        message: message.trim(),
+      }
+    )
+    if (err || !data?.url) {
+      setSubmitting(false)
+      setPayError(err || "Couldn't start checkout. Please try again.")
+      toast.error(err || "Couldn't start checkout.")
+      return
+    }
+    window.location.assign(data.url)
+  }
 
   useEffect(() => {
     let alive = true
@@ -247,6 +295,8 @@ export function PopularCombos() {
                           setMessage("")
                           setFormError(null)
                           setSuccess(null)
+                          setCheckoutOpen(false)
+                          setPayError(null)
                         }}
                         className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f4574a] to-[#ff7d68] text-sm font-bold text-white shadow-[0_14px_34px_-16px_rgba(244,87,74,0.95)] transition hover:brightness-110"
                       >
@@ -329,46 +379,11 @@ export function PopularCombos() {
 
                 <form
                   className="mt-5 grid gap-4"
-                  onSubmit={async (event) => {
+                  onSubmit={(event) => {
                     event.preventDefault()
                     if (submitting) return
-                    const today = new Date().toISOString().slice(0, 10)
-                    if (!deliveryDate) {
-                      setFormError("Choose a delivery date.")
-                      return
-                    }
-                    if (deliveryDate < today) {
-                      setFormError("Delivery date can't be in the past.")
-                      return
-                    }
-                    if (deliveryAddress.trim().length < 5) {
-                      setFormError(
-                        "Enter a delivery address (at least 5 characters)."
-                      )
-                      return
-                    }
-                    setSubmitting(true)
-                    setFormError(null)
-                    const { error: err } = await apiSend<{ orders: unknown[] }>(
-                      "/api/orders/combo",
-                      "POST",
-                      {
-                        itemIds: ordering.items.map((i) => i._id),
-                        deliveryDate,
-                        deliveryAddress: deliveryAddress.trim(),
-                        message: message.trim(),
-                      }
-                    )
-                    setSubmitting(false)
-                    if (err) {
-                      setFormError(err)
-                      toast.error(err)
-                      return
-                    }
-                    setSuccess(
-                      "Both dishes are on their way — track them from your dashboard."
-                    )
-                    toast.success("Combo ordered successfully.")
+                    if (!validateCombo()) return
+                    setCheckoutOpen(true)
                   }}
                 >
                   <div>
@@ -433,6 +448,43 @@ export function PopularCombos() {
             )}
           </div>
         </div>
+      ) : null}
+
+      {ordering && !success ? (
+        <DemoCheckout
+          open={checkoutOpen}
+          paying={submitting}
+          error={payError}
+          lines={ordering.items.map((dish, index) => {
+            const discount = Math.min(
+              100,
+              ordering.items[0].price + ordering.items[1].price
+            )
+            return {
+              image: primaryImage(dish),
+              name: dish.itemName,
+              vendor: dish.vendorName || "PizzaHub vendor",
+              deliveryLabel: deliveryDate
+                ? `Delivery ${deliveryDate}`
+                : undefined,
+              amount:
+                index === 0
+                  ? Math.max(0, dish.price - discount)
+                  : dish.price,
+            }
+          })}
+          subtotal={ordering.items[0].price + ordering.items[1].price}
+          discount={Math.min(
+            100,
+            ordering.items[0].price + ordering.items[1].price
+          )}
+          onConfirm={confirmComboPayment}
+          onBack={() => {
+            if (submitting) return
+            setCheckoutOpen(false)
+            setPayError(null)
+          }}
+        />
       ) : null}
     </>
   )

@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useInView } from "@/hooks/use-in-view"
+import { toast } from "react-toastify"
 import { authClient } from "@/lib/auth-client"
 import { clearAuthToken } from "@/lib/client-fetch"
 import { passwordError } from "@/lib/password"
@@ -524,6 +525,7 @@ export function AuthSection({
         }
         setMessage("Welcome back — taking you to the kitchen…")
         setStatus("success")
+        toast.success("Welcome back! You're signed in.")
         const signedInRole = (res.data?.user as { role?: string } | undefined)
           ?.role
         redirectTimer.current = window.setTimeout(
@@ -559,8 +561,10 @@ export function AuthSection({
           if (signInRes?.error) {
             
             setMessage("Account created — please sign in to continue.")
+            toast.info("Account created — please sign in to continue.")
           } else {
             setMessage("Account created — welcome aboard!")
+            toast.success("Account created — welcome aboard!")
           }
         } catch {
           setMessage("Account created — please sign in to continue.")
@@ -585,10 +589,16 @@ export function AuthSection({
         }
         setMessage("Reset link sent.")
         setStatus("success")
+        toast.success("Reset link sent to your email.")
       }
     } catch (error) {
       fail(
         null,
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      )
+      toast.error(
         error instanceof Error
           ? error.message
           : "Something went wrong. Please try again."
@@ -626,6 +636,11 @@ export function AuthSection({
     } catch (error) {
       setStatus("error")
       setMessage(
+        error instanceof Error
+          ? error.message
+          : "Social sign-in failed. Please try again."
+      )
+      toast.error(
         error instanceof Error
           ? error.message
           : "Social sign-in failed. Please try again."

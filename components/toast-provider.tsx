@@ -10,11 +10,11 @@ export function ToastProvider() {
       position="bottom-right"
       autoClose={3600}
       newestOnTop
-      closeOnClick
+      closeOnClick 
       pauseOnHover
       draggable={false}
       theme="colored"
-      toastClassName="!rounded-full !font-semibold"
+      toastClassName="!rounded-2xl !font-semibold !shadow-lg"
       style={{ zIndex: 9999 }}
     />
   )

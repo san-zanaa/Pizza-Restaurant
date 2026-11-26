@@ -326,3 +326,29 @@
     box-shadow: 0 0 0 0 rgba(244, 87, 74, 0);
   }
 }
+/* ---- React-toastify theming ---- */
+.Toastify__toast-container {
+  --toastify-font-family: var(--font-sans);
+  --toastify-toast-bd-radius: 16px;
+  --toastify-toast-shadow: 0 18px 40px -18px rgba(244, 87, 74, 0.45);
+}
+:root {
+  --toastify-color-info: #669bbc;
+  --toastify-color-success: #6a994e;
+  --toastify-color-warning: #f59e0b;
+  --toastify-color-error: #f4574a;
+  --toastify-icon-color-info: #669bbc;
+  --toastify-icon-color-success: #6a994e;
+  --toastify-icon-color-warning: #f59e0b;
+  --toastify-icon-color-error: #f4574a;
+}
+.dark {
+  --toastify-color-info: #669bbc;
+  --toastify-color-success: #6a994e;
+  --toastify-color-warning: #f59e0b;
+  --toastify-color-error: #f4574a;
+  --toastify-icon-color-info: #669bbc;
+  --toastify-icon-color-success: #6a994e;
+  --toastify-icon-color-warning: #f59e0b;
+  --toastify-icon-color-error: #f4574a;
+}
